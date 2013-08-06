@@ -104,7 +104,7 @@ void BasicTaskScheduler0::doEventLoop(char* watchVariable) {
 
 EventTriggerId BasicTaskScheduler0::createEventTrigger(
 		TaskFunc* eventHandlerProc) {
-	unsigned i = fLastUsedTriggerNum;
+	unsigned i = fLastUsedTriggerNum;	//unsigned = unsigned int 32位，4个字节
 	EventTriggerId mask = fLastUsedTriggerMask;
 	/*
 	 * 在数组中寻找一个未使用的 ,把eventHandlerProc分配到这一项
