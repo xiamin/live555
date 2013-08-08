@@ -1485,7 +1485,7 @@ static void parseTransportHeader(char const* buf, StreamingMode& streamingMode,
 		unsigned char& rtcpChannelId // if TCP
 ) {
 	// Initialize the result parameters to default values:
-	streamingMode = RTP_UDP;
+	streamingMode = RTP_UDP;	//默认使用UDP方式传输RTP
 	streamingModeString = NULL;
 	destinationAddressStr = NULL;
 	destinationTTL = 255;
@@ -1513,26 +1513,28 @@ static void parseTransportHeader(char const* buf, StreamingMode& streamingMode,
 		++fields;
 	char* field = strDupSize(fields);
 	while (sscanf(fields, "%[^;\r\n]", field) == 1) {
-		if (strcmp(field, "RTP/AVP/TCP") == 0) {
+		if (strcmp(field, "RTP/AVP/TCP") == 0) {	//使用了RTP OVER TCP方式传输
 			streamingMode = RTP_TCP;
-		} else if (strcmp(field, "RAW/RAW/UDP") == 0 || strcmp(field,
-				"MP2T/H2221/UDP") == 0) {
+		} else if (strcmp(field, "RAW/RAW/UDP") == 0 || strcmp(field,	//裸的的UDP数据，不使用RTP协议
+				"MP2T/H2221/UDP") == 0) {								//这种方式没见过，看名字应该是某种协议的UDP传输，但也被当成裸的UDP数据
 			streamingMode = RAW_UDP;
 			streamingModeString = strDup(field);
-		} else if (_strncasecmp(field, "destination=", 12) == 0) {
+		} else if (_strncasecmp(field, "destination=", 12) == 0) {//destination属性，客户端可以通过这个属性
+			//重新设置RTP的发送地址，注意，服务器可能拒绝概属性
 			delete[] destinationAddressStr;
 			destinationAddressStr = strDup(field + 12);
 		} else if (sscanf(field, "ttl%u", &ttl) == 1) {
 			destinationTTL = (u_int8_t) ttl;
-		} else if (sscanf(field, "client_port=%hu-%hu", &p1, &p2) == 2) {
+		} else if (sscanf(field, "client_port=%hu-%hu", &p1, &p2) == 2) {//client_port属性，客户端接受RTP、RTCP的端口号
 			clientRTPPortNum = p1;
 			clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p2; // ignore the second port number if the client asked for raw UDP
-		} else if (sscanf(field, "client_port=%hu", &p1) == 1) {
+		} else if (sscanf(field, "client_port=%hu", &p1) == 1) {//客户端提供了RTP的端口号情况
 			clientRTPPortNum = p1;
 			clientRTCPPortNum = streamingMode == RAW_UDP ? 0 : p1 + 1;
-		} else if (sscanf(field, "interleaved=%u-%u", &rtpCid, &rtcpCid) == 2) {
-			rtpChannelId = (unsigned char) rtpCid;
-			rtcpChannelId = (unsigned char) rtcpCid;
+		} else if (sscanf(field, "interleaved=%u-%u", &rtpCid, &rtcpCid) == 2) {//interleaved属性，仅在使用
+			//RTP OVER TCP方式传输时有用
+			rtpChannelId = (unsigned char) rtpCid;	//RTP标识
+			rtcpChannelId = (unsigned char) rtcpCid;//RTCP标识
 		}
 
 		fields += strlen(field);
@@ -1578,9 +1580,11 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 
 	noteLiveness();
 	do {
+		//根据流媒体名称（文件名）查找相应的session，session是在DESCRIBE命令处理过程中创建的
 		// First, make sure the specified stream name exists:
 		ServerMediaSession* sms = fOurServer.lookupServerMediaSession(
 				streamName);
+		//下面处理URL中不带 track id的情况，当文件中只有一个流时允许这种情况的出现，这里流名称保存在urlSuffix变量中
 		if (sms == NULL) {
 			// Check for the special case (noted above), before we give up:
 			if (urlPreSuffix[0] == '\0') {
@@ -1618,6 +1622,9 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 			}
 		}
 
+		/*
+		 * 若这是这个session所处理的第一个"SETUP"命令，则需要构建一个streamState型的数组，并初始化
+		 */
 		//为一个流中所有的track都分配一个stream state
 		if (fStreamStates == NULL) {
 			// This is the first "SETUP" for this session.  Set up our array of states for all of this session's subsessions (tracks):
@@ -1628,6 +1635,7 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 			fStreamStates = new struct streamState[fNumStreamStates];
 
 			iter.reset();
+			//初始化
 			ServerMediaSubsession* subsession;
 			for (unsigned i = 0; i < fNumStreamStates; ++i) {
 				subsession = iter.next();
@@ -1636,6 +1644,9 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 			}
 		}
 
+		/*
+		 * 查找track id 对应的subsession是否存在，不存在则进行错误处理
+		 */
 		//查找当前请求的track的信息
 		// Look up information for the specified subsession (track):
 		ServerMediaSubsession* subsession = NULL;
@@ -1653,6 +1664,9 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 				break;
 			}
 		} else {
+			/*
+			 * 例外情况：URL中不存在track id， 仅当只有一个subsession的情况下才允许出现
+			 */
 			// Weird case: there was no track id in the URL.
 			// This works only if we have only one subsession:
 			if (fNumStreamStates != 1 || fStreamStates[0].subsession == NULL) {
@@ -1664,6 +1678,9 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 		}
 		// ASSERT: subsession != NULL
 
+		/*
+		 * 处理transport头部，获取传输相关信息
+		 */
 		//分析rtsp请求字符串中的传输要求
 		// Look for a "Transport:" header in the request string, to extract client parameters:
 		StreamingMode streamingMode;
@@ -1694,6 +1711,7 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 		Port clientRTPPort(clientRTPPortNum);
 		Port clientRTCPPort(clientRTCPPortNum);
 
+		//处理Range头部（可选）
 		// Next, check whether a "Range:" or "x-playNow:" header is present in the request.
 		// This isn't legal, but some clients do this to combine "SETUP" and "PLAY":
 		double rangeStart = 0.0, rangeEnd = 0.0;
@@ -1711,10 +1729,7 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 		}
 
 		// Then, get server parameters from the 'subsession':
-		int
-				tcpSocketNum =
-						streamingMode == RTP_TCP ? ourClientConnection->fClientOutputSocket
-								: -1;
+		int tcpSocketNum = streamingMode == RTP_TCP ? ourClientConnection->fClientOutputSocket : -1;
 		netAddressBits destinationAddress = 0;
 		u_int8_t destinationTTL = 255;
 #ifdef RTSP_ALLOW_CLIENT_DESTINATION_SETTING
@@ -1744,6 +1759,11 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 		ReceivingInterfaceAddr = SendingInterfaceAddr = sourceAddr.sin_addr.s_addr;
 #endif
 
+		/*
+		 * 从subsession中获取参数
+		 *
+		 * fOurSessionId，标识了一个客户端的session，是在RTSPServer::incomingConnectionHandler函数中生成的随机数
+		 */
 		//获取rtp连接信息，在其中已建立起了server端的rtp和rtcp socket，
 		//返回fStreamStates[streamNum].streamToken表示数据流已经建立起来了
 		subsession->getStreamParameters(fOurSessionId,
@@ -1756,6 +1776,9 @@ void RTSPServer::RTSPClientSession::handleCmd_SETUP(
 		ReceivingInterfaceAddr = origReceivingInterfaceAddr;
 
 		//形成RTSP回应字符串
+		/*
+		 *下面是组装响应包
+		 */
 		AddressString destAddrStr(destinationAddress);
 		AddressString sourceAddrStr(sourceAddr);
 		if (fIsMulticast) {
@@ -1852,6 +1875,14 @@ void RTSPServer::RTSPClientSession::handleCmd_withinSession(
 		RTSPServer::RTSPClientConnection* ourClientConnection,
 		char const* cmdName, char const* urlPreSuffix, char const* urlSuffix,
 		char const* fullRequestStr) {
+	/*
+	 * 非聚合，如rtsp://192.168.1.1/urlPreSuffix/urlSuffix,urlPreSuffix作为stream name, urlSuffix作为subsession的trackId
+	 * 非聚合的情况下，才能根据trackId找到subsession
+	 * 聚合， 如：
+	 * 1)rtsp://192.168.1.1/urlPreSuffix/urlSuffix,将urlSuffix作为stream name, 而urlPreSuffix忽略
+	 * 2)rtsp://192.168.1.1/urlPreSuffix,只存在urlPreSuffix,并将其作为stream name,这应该是最常见的情况
+	 * 聚合，如rtsp://192.168.1.1/urlPreSuffix/urlSuffix,将urlPreSuffix/urlSuffix整个作为stream name
+	 */
 	// This will either be:
 	// - a non-aggregated operation, if "urlPreSuffix" is the session (stream)
 	//   name and "urlSuffix" is the subsession (track) name, or
