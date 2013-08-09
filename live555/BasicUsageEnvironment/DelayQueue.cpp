@@ -120,20 +120,20 @@ DelayQueue::~DelayQueue() {
 }
 
 void DelayQueue::addEntry(DelayQueueEntry* newEntry) {
-	//é‡æ–°è®¡ç®—å„é¡¹çš„ç­‰å¾…æ—¶é—´
+	//ÖØÐÂ¼ÆËã¸÷ÏîµÄµÈ´ýÊ±¼ä
 	synchronize();
 
-	//å–å¾—ç¬¬ä¸€é¡¹
+	//È¡µÃµÚÒ»Ïî
 	DelayQueueEntry* cur = head();
-	//ä»Žå¤´åˆ°å°¾å¾ªçŽ¯ä¸­å°†æ–°é¡¹ä¸Žå„é¡¹çš„ç­‰å¾…æ—¶é—´è¿›è¡Œæ¯”è¾ƒ
+	//´ÓÍ·µ½Î²Ñ­»·ÖÐ½«ÐÂÏîÓë¸÷ÏîµÄµÈ´ýÊ±¼ä½øÐÐ±È½Ï
 	while (newEntry->fDeltaTimeRemaining >= cur->fDeltaTimeRemaining) {
-		//å¦‚æžœæ–°é¡¹ç­‰å¾…æ—¶é—´é•¿äºŽå½“å‰é¡¹çš„ç­‰å¾…æ—¶é—´ï¼Œåˆ™å‡æŽ‰å½“å‰é¡¹çš„ç­‰å¾…æ—¶é—´
-		//ä¹Ÿå°±æ˜¯åŽé¢çš„ç­‰å¾…æ—¶é—´åªæ˜¯ä¸Žå‰é¢é¡¹ç­‰å¾…æ—¶é—´çš„å·®ï¼Œè¿™æ ·çœæŽ‰äº†è®°å½•æ’å…¥æ—¶çš„æ—¶é—´çš„å˜é‡
+		//Èç¹ûÐÂÏîµÈ´ýÊ±¼ä³¤ÓÚµ±Ç°ÏîµÄµÈ´ýÊ±¼ä£¬Ôò¼õµôµ±Ç°ÏîµÄµÈ´ýÊ±¼ä
+		//Ò²¾ÍÊÇºóÃæµÄµÈ´ýÊ±¼äÖ»ÊÇÓëÇ°ÃæÏîµÈ´ýÊ±¼äµÄ²î£¬ÕâÑùÊ¡µôÁË¼ÇÂ¼²åÈëÊ±µÄÊ±¼äµÄ±äÁ¿
 		newEntry->fDeltaTimeRemaining -= cur->fDeltaTimeRemaining;
 		cur = cur->fNext;
 	}
 
-	//å¾ªçŽ¯å®Œæ¯•ï¼Œcurå°±æ˜¯æ‰¾åˆ°çš„åº”æ’å®ƒå‰é¢çš„é¡¹ï¼Œé‚£å°±æ’å®ƒå‰é¢å§
+	//Ñ­»·Íê±Ï£¬cur¾ÍÊÇÕÒµ½µÄÓ¦²åËüÇ°ÃæµÄÏî£¬ÄÇ¾Í²åËüÇ°Ãæ°É
 	cur->fDeltaTimeRemaining -= newEntry->fDeltaTimeRemaining;
 
 	// Add "newEntry" to the queue, just before "cur":
@@ -183,16 +183,16 @@ DelayInterval const& DelayQueue::timeToNextAlarm() {
 
 void DelayQueue::handleAlarm() {
 
-	//å¦‚æžœç¬¬ä¸€ä¸ªä»»åŠ¡çš„æ‰§è¡Œæ—¶é—´æœªåˆ°ï¼Œåˆ™åŒæ­¥ä¸‹ä¸€ä¸ª(é‡æ–°è®¡ç®—å„ä»»åŠ¡çš„ç­‰å¾…æ—¶é—´)
+	//Èç¹ûµÚÒ»¸öÈÎÎñµÄÖ´ÐÐÊ±¼äÎ´µ½£¬ÔòÍ¬²½ÏÂÒ»¸ö(ÖØÐÂ¼ÆËã¸÷ÈÎÎñµÄµÈ´ýÊ±¼ä)
 	if (head()->fDeltaTimeRemaining != DELAY_ZERO)
 		synchronize();
 
-	//å¦‚æžœç¬¬ä¸€ä¸ªä»»åŠ¡çš„æ—¶é—´åˆ°äº†ï¼Œåˆ™æ‰§è¡Œç¬¬ä¸€ä¸ªï¼Œå¹¶æŠŠå®ƒä»Žé˜Ÿåˆ—ä¸­åˆ æŽ‰
+	//Èç¹ûµÚÒ»¸öÈÎÎñµÄÊ±¼äµ½ÁË£¬ÔòÖ´ÐÐµÚÒ»¸ö£¬²¢°ÑËü´Ó¶ÓÁÐÖÐÉ¾µô
 	if (head()->fDeltaTimeRemaining == DELAY_ZERO) {
 		// This event is due to be handled:
 		DelayQueueEntry* toRemove = head();
 		removeEntry(toRemove); // do this first, in case handler accesses queue
-		//æ‰§è¡Œä»»åŠ¡ï¼Œæ‰§è¡Œå®ŒåŽä¼šæŠŠè¿™ä¸€é¡¹é”€æ¯
+		//Ö´ÐÐÈÎÎñ£¬Ö´ÐÐÍêºó»á°ÑÕâÒ»ÏîÏú»Ù
 		toRemove->handleTimeout();
 	}
 }

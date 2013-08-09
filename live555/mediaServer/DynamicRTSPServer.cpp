@@ -26,7 +26,7 @@ DynamicRTSPServer*
 DynamicRTSPServer::createNew(UsageEnvironment& env, Port ourPort,
 		UserAuthenticationDatabase* authDatabase,
 		unsigned reclamationTestSeconds) {
-	int ourSocket = setUpOurSocket(env, ourPort); //å»ºç«‹TCP socket
+	int ourSocket = setUpOurSocket(env, ourPort); //½¨Á¢TCP socket
 	if (ourSocket == -1)
 		return NULL;
 
@@ -48,9 +48,9 @@ static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 		char const* fileName, FILE* fid); // forward
 
 /*
- * DynamicRTSPServeræ˜¯RTSPServerçš„å­ç±»ï¼Œç»§æ‰¿å…³ç³»ä¸ºï¼šDynamicRTSPServer->RTSPServerSupportingHTTPStreaming
- * ->RTSPServer,è°ƒç”¨RTSPServer::lookupServerMediaSession,æŸ¥è¯¢streamNameå¯¹åº”çš„sessionæ˜¯å¦å­˜åœ¨ã€‚è‹¥ä¸å­˜åœ¨ï¼Œåˆ™
- * éœ€è¦åˆ›å»ºæ–°çš„sessionï¼Œå¹¶å°†å…¶åŠ å…¥åˆ°é“¾è¡¨ä¸­å¦åˆ™ç›´æ¥è¿”å›å·²å­˜åœ¨çš„session
+ * DynamicRTSPServerÊÇRTSPServerµÄ×ÓÀà£¬¼Ì³Ğ¹ØÏµÎª£ºDynamicRTSPServer->RTSPServerSupportingHTTPStreaming
+ * ->RTSPServer,µ÷ÓÃRTSPServer::lookupServerMediaSession,²éÑ¯streamName¶ÔÓ¦µÄsessionÊÇ·ñ´æÔÚ¡£Èô²»´æÔÚ£¬Ôò
+ * ĞèÒª´´½¨ĞÂµÄsession£¬²¢½«Æä¼ÓÈëµ½Á´±íÖĞ·ñÔòÖ±½Ó·µ»ØÒÑ´æÔÚµÄsession
  */
 ServerMediaSession*
 DynamicRTSPServer::lookupServerMediaSession(char const* streamName) {
@@ -59,21 +59,21 @@ DynamicRTSPServer::lookupServerMediaSession(char const* streamName) {
 	Boolean fileExists = fid != NULL;
 
 	// Next, check whether we already have a "ServerMediaSession" for this file:
-	ServerMediaSession* sms = RTSPServer::lookupServerMediaSession(streamName);	//åœ¨æˆå‘˜å“ˆå¸Œè¡¨ä¸­æŸ¥è¯¢
+	ServerMediaSession* sms = RTSPServer::lookupServerMediaSession(streamName);	//ÔÚ³ÉÔ±¹şÏ£±íÖĞ²éÑ¯
 	Boolean smsExists = sms != NULL;
 
 	// Handle the four possibilities for "fileExists" and "smsExists":
 	if (!fileExists) {
 		if (smsExists) {
 			// "sms" was created for a file that no longer exists. Remove it:
-			removeServerMediaSession(sms);	//å¯¹åº”çš„æ–‡ä»¶å·²ç»ä¸å­˜åœ¨ï¼Œä»é“¾è¡¨ä¸­ç§»é™¤session
+			removeServerMediaSession(sms);	//¶ÔÓ¦µÄÎÄ¼şÒÑ¾­²»´æÔÚ£¬´ÓÁ´±íÖĞÒÆ³ısession
 		}
 		return NULL;
 	} else {
 		if (!smsExists) {
 			// Create a new "ServerMediaSession" object for streaming from the named file.
-			sms = createNewSMS(envir(), streamName, fid);	//sessionä¸å­˜åœ¨ï¼Œåˆ™åˆ›å»º(2.2)ï¼Œæ ¹æ®åå­—çš„ä¸åŒåˆ›å»ºä¸åŒçš„session
-			addServerMediaSession(sms);						//åŠ å…¥åˆ°é“¾è¡¨(2.1)
+			sms = createNewSMS(envir(), streamName, fid);	//session²»´æÔÚ£¬Ôò´´½¨(2.2)£¬¸ù¾İÃû×ÖµÄ²»Í¬´´½¨²»Í¬µÄsession
+			addServerMediaSession(sms);						//¼ÓÈëµ½Á´±í(2.1)
 		}
 		fclose(fid);
 		return sms;
@@ -95,17 +95,17 @@ char const* descStr = description\
 sms = ServerMediaSession::createNew(env, fileName, fileName, descStr);\
 } while(0)
 /*
- * å¯ä»¥çœ‹åˆ°NEW_SMS("AMR Audio")ä¼šåˆ›å»ºæ–°çš„ServerMediaSession,ä¹‹åé©¬ä¸Šè°ƒç”¨sms->addSubsession()
- * ä¸ºè¿™ä¸ªServerMediaSessionæ·»åŠ ä¸€ä¸ªServerMediaSbuSession.çœ‹èµ·æ¥ServerMediaSessionåº”è¯¥å¯ä»¥
- * æ·»åŠ å¤šä¸ªServerMediaSubSession,ä½†è¿™é‡Œå¹¶æ²¡æœ‰è¿™æ ·åšã€‚å¦‚æœå¯ä»¥æ·»åŠ å¤šä¸ªServerMediaSubSessioné‚£ä¹ˆ
- * ServerMediaSessionä¸æµåå­—æ‰€æŒ‡å®šçš„æ–‡ä»¶æ˜¯æ²¡æœ‰å…³ç³»çš„ï¼Œä¹Ÿå°±æ˜¯è¯´å®ƒä¸ä¼šæ“ä½œæ–‡ä»¶ï¼Œè€Œæ–‡ä»¶çš„æ“ä½œæ˜¯æ”¾åœ¨
+ * ¿ÉÒÔ¿´µ½NEW_SMS("AMR Audio")»á´´½¨ĞÂµÄServerMediaSession,Ö®ºóÂíÉÏµ÷ÓÃsms->addSubsession()
+ * ÎªÕâ¸öServerMediaSessionÌí¼ÓÒ»¸öServerMediaSbuSession.¿´ÆğÀ´ServerMediaSessionÓ¦¸Ã¿ÉÒÔ
+ * Ìí¼Ó¶à¸öServerMediaSubSession,µ«ÕâÀï²¢Ã»ÓĞÕâÑù×ö¡£Èç¹û¿ÉÒÔÌí¼Ó¶à¸öServerMediaSubSessionÄÇÃ´
+ * ServerMediaSessionÓëÁ÷Ãû×ÖËùÖ¸¶¨µÄÎÄ¼şÊÇÃ»ÓĞ¹ØÏµµÄ£¬Ò²¾ÍÊÇËµËü²»»á²Ù×÷ÎÄ¼ş£¬¶øÎÄ¼şµÄ²Ù×÷ÊÇ·ÅÔÚ
  *
- * ServerMediaSubSessionä¸­çš„ã€‚å…·ä½“åº”è¯¥æ˜¯åœ¨ServerMediaSubSessionçš„sdpLines()å‡½æ•°ä¸­æ‰“å¼€ã€‚
+ * ServerMediaSubSessionÖĞµÄ¡£¾ßÌåÓ¦¸ÃÊÇÔÚServerMediaSubSessionµÄsdpLines()º¯ÊıÖĞ´ò¿ª¡£
  */
 /*
- * ç”±äºä¸åŒçš„åª’ä½“ç±»å‹ï¼Œéœ€è¦åˆ›å»ºä¸åŒçš„sessionï¼Œä¸ºäº†ä¾¿äºä¿®æ”¹ï¼Œåˆ›å»ºsessionçš„ä»£ç è¢«æ”¾åˆ°ä¸€ä¸ªç‹¬ç«‹çš„å‡½æ•°
- * createNewSMSä¸­ï¼Œ
- * sessionçš„åˆ›å»ºè¢«éšè—åœ¨å®å®šä¹‰NEW_SMSé‡Œã€‚ServerMediaSession::createNewå°†å®ä¾‹åŒ–ä¸€ä¸ªServerMediaSessionå¯¹è±¡
+ * ÓÉÓÚ²»Í¬µÄÃ½ÌåÀàĞÍ£¬ĞèÒª´´½¨²»Í¬µÄsession£¬ÎªÁË±ãÓÚĞŞ¸Ä£¬´´½¨sessionµÄ´úÂë±»·Åµ½Ò»¸ö¶ÀÁ¢µÄº¯Êı
+ * createNewSMSÖĞ£¬
+ * sessionµÄ´´½¨±»Òş²ØÔÚºê¶¨ÒåNEW_SMSÀï¡£ServerMediaSession::createNew½«ÊµÀı»¯Ò»¸öServerMediaSession¶ÔÏó
  */
 static ServerMediaSession* createNewSMS(UsageEnvironment& env,
 		char const* fileName, FILE* /*fid*/) {

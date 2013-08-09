@@ -58,21 +58,21 @@ void BasicTaskScheduler::schedulerTickTask() {
 #define MILLION 1000000
 #endif
 /*
- * 1.é¦–å…ˆå¤„ç†IOäº‹ä»¶ã€‚ç¨‹åºé€šè¿‡selectå‡½æ•°é€‰æ‹©é‚£äº›å·²ç»å‡†å¤‡å¥½çš„IOæ–‡ä»¶æè¿°ç¬¦ï¼Œå¯¹å…¶è¿›è¡Œè¯»ã€å†™æˆ–è€…å¼‚å¸¸
- * 	 å¤„ç†ã€‚ä¸è¯¥ä»»åŠ¡ç›¸å…³çš„æ¥å£ä¸ºï¼šSetBackgroundHandling, disableBackgroundHandlingä»¥åŠ
- *   moveSocketHandlingã€‚IOäº‹ä»¶ä¼šåœ¨ä»»åŠ¡ä¸­åå¤æ‰§è¡Œ
- * 2.ç„¶åå¤„ç†è§¦å‘äº‹ä»¶ã€‚ç”±äºä½œè€…é‡‡ç”¨äº†ä¸€ä¸ªæœºå™¨å­—èŠ‚ä¸­çš„ä½æ¥ä¿å­˜å‡ºå‘äº‹ä»¶çš„æ•°é‡ï¼Œæ‰€ä»¥è§¦å‘äº‹ä»¶çš„æ•°é‡
- *   å—æœºå™¨é™åˆ¶ã€‚å¯¹X86ç³»ç»Ÿåˆ™32ä¸ªè§¦å‘äº‹ä»¶ã€‚è¿™æ ·åšçš„å¥½å¤„æ˜¯æ•ˆç‡é«˜ï¼Œä½†ç¼ºç‚¹æ˜¯æ•°é‡å—é™åˆ¶ã€‚ä¸è¯¥ä»»åŠ¡ç›¸å…³
- *   çš„æ¥å£ä¸ºcreateEventTrigger,deleteEventTriggerå’ŒtriggerEventã€‚äº‹ä»¶ä¸€æ—¦è¢«è§¦å‘åï¼Œ
- *   å°†ä¼šç«‹å³åˆ é™¤ï¼Œé¿å…äº‹ä»¶å†æ¬¡è§¦å‘ã€‚
- * 3.æœ€åå°†æ‰§è¡Œå»¶è¿Ÿä»»åŠ¡ã€‚å»¶è¿Ÿä»»åŠ¡ä¿å­˜åœ¨ä¸€ä¸ªå»¶è¿Ÿé˜Ÿåˆ—ä¸­ï¼Œé€šè¿‡æ—¶é—´æ¥æŒ‡å®šä½•æ—¶æ‰§è¡Œã€‚æœ‰å…³å»¶è¿Ÿä»»åŠ¡ï¼Œæˆ‘ä»¬
- *   æ”¾åœ¨åé¢çš„å°èŠ‚ä¸­ä¸“é—¨å­¦ä¹ ã€‚å»¶è¿Ÿä»»åŠ¡æ‰§è¡Œåä¹Ÿå°†ä»å»¶è¿Ÿé˜Ÿåˆ—ä¸­åˆ é™¤ã€‚
+ * 1.Ê×ÏÈ´¦ÀíIOÊÂ¼ş¡£³ÌĞòÍ¨¹ıselectº¯ÊıÑ¡ÔñÄÇĞ©ÒÑ¾­×¼±¸ºÃµÄIOÎÄ¼şÃèÊö·û£¬¶ÔÆä½øĞĞ¶Á¡¢Ğ´»òÕßÒì³£
+ * 	 ´¦Àí¡£Óë¸ÃÈÎÎñÏà¹ØµÄ½Ó¿ÚÎª£ºSetBackgroundHandling, disableBackgroundHandlingÒÔ¼°
+ *   moveSocketHandling¡£IOÊÂ¼ş»áÔÚÈÎÎñÖĞ·´¸´Ö´ĞĞ
+ * 2.È»ºó´¦Àí´¥·¢ÊÂ¼ş¡£ÓÉÓÚ×÷Õß²ÉÓÃÁËÒ»¸ö»úÆ÷×Ö½ÚÖĞµÄÎ»À´±£´æ³ö·¢ÊÂ¼şµÄÊıÁ¿£¬ËùÒÔ´¥·¢ÊÂ¼şµÄÊıÁ¿
+ *   ÊÜ»úÆ÷ÏŞÖÆ¡£¶ÔX86ÏµÍ³Ôò32¸ö´¥·¢ÊÂ¼ş¡£ÕâÑù×öµÄºÃ´¦ÊÇĞ§ÂÊ¸ß£¬µ«È±µãÊÇÊıÁ¿ÊÜÏŞÖÆ¡£Óë¸ÃÈÎÎñÏà¹Ø
+ *   µÄ½Ó¿ÚÎªcreateEventTrigger,deleteEventTriggerºÍtriggerEvent¡£ÊÂ¼şÒ»µ©±»´¥·¢ºó£¬
+ *   ½«»áÁ¢¼´É¾³ı£¬±ÜÃâÊÂ¼şÔÙ´Î´¥·¢¡£
+ * 3.×îºó½«Ö´ĞĞÑÓ³ÙÈÎÎñ¡£ÑÓ³ÙÈÎÎñ±£´æÔÚÒ»¸öÑÓ³Ù¶ÓÁĞÖĞ£¬Í¨¹ıÊ±¼äÀ´Ö¸¶¨ºÎÊ±Ö´ĞĞ¡£ÓĞ¹ØÑÓ³ÙÈÎÎñ£¬ÎÒÃÇ
+ *   ·ÅÔÚºóÃæµÄĞ¡½ÚÖĞ×¨ÃÅÑ§Ï°¡£ÑÓ³ÙÈÎÎñÖ´ĞĞºóÒ²½«´ÓÑÓ³Ù¶ÓÁĞÖĞÉ¾³ı¡£
  */
 /*
- * 1.ä¸ºæ‰€æœ‰éœ€è¦æ“ä½œçš„socketæ‰§è¡Œselect
- * 2.æ‰¾å‡ºç¬¬ä¸€ä¸ªåº”æ‰§è¡Œsocketä»»åŠ¡ï¼ˆhandlerï¼‰å¹¶æ‰§è¡Œä¹‹
- * 3.æ‰¾åˆ°ç¬¬ä¸€ä¸ªåº”å“åº”çš„äº‹ä»¶ï¼Œå¹¶æ‰§è¡Œä¹‹
- * 4.æ‰¾åˆ°ç¬¬ä¸€ä¸ªåº”æ‰§è¡Œçš„å»¶è¿Ÿä»»åŠ¡å¹¶æ‰§è¡Œä¹‹
+ * 1.ÎªËùÓĞĞèÒª²Ù×÷µÄsocketÖ´ĞĞselect
+ * 2.ÕÒ³öµÚÒ»¸öÓ¦Ö´ĞĞsocketÈÎÎñ£¨handler£©²¢Ö´ĞĞÖ®
+ * 3.ÕÒµ½µÚÒ»¸öÓ¦ÏìÓ¦µÄÊÂ¼ş£¬²¢Ö´ĞĞÖ®
+ * 4.ÕÒµ½µÚÒ»¸öÓ¦Ö´ĞĞµÄÑÓ³ÙÈÎÎñ²¢Ö´ĞĞÖ®
  */
 void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	fd_set readSet = fReadSet; // make a copy for this select() call
@@ -87,8 +87,8 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	// Very large "tv_sec" values cause select() to fail.
 	// Don't make it any larger than 1 million seconds (11.5 days)
 	/*
-	 * ä¸€ä¸ªå¤ªå¤§çš„tv_setå°†å¯¼è‡´selectå‡½æ•°å¤±è´¥
-	 * å› æ­¤ï¼Œç¡®ä¿å®ƒä¸å¤§äºä¸€ä¸‡ç§’ï¼Œå³11.5å¤©
+	 * Ò»¸öÌ«´óµÄtv_set½«µ¼ÖÂselectº¯ÊıÊ§°Ü
+	 * Òò´Ë£¬È·±£Ëü²»´óÓÚÒ»ÍòÃë£¬¼´11.5Ìì
 	 */
 	const long MAX_TV_SEC = MILLION;
 	if (tv_timeToDelay.tv_sec > MAX_TV_SEC) {
@@ -97,7 +97,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 
 	// Also check our "maxDelayTime" parameter (if it's > 0):
 	/*
-	 * æ£€æŸ¥æœ€å¤§å»¶è¿Ÿæ—¶é—´æ˜¯å¦å¤§äºä¸€ä¸‡ç§’ï¼Œä»¥åŠå¾®å¦™çº§æ˜¯å¦å¤§äºä¸€ç™¾ä¸‡å¾®å¦™ï¼Œå³1ç§’
+	 * ¼ì²é×î´óÑÓ³ÙÊ±¼äÊÇ·ñ´óÓÚÒ»ÍòÃë£¬ÒÔ¼°Î¢Ãî¼¶ÊÇ·ñ´óÓÚÒ»°ÙÍòÎ¢Ãî£¬¼´1Ãë
 	 */
 	if (maxDelayTime > 0 && (tv_timeToDelay.tv_sec > (long) maxDelayTime
 			/ MILLION
@@ -151,14 +151,14 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	}
 
 	/*
-	 * BasicTaskSchedulerå®ç°äº†æœ€åä¸€ä¸ªä»»åŠ¡ï¼Œå³IOäº‹ä»¶å’Œæ ¸å¿ƒè°ƒåº¦ç¨‹åºSingleStepã€‚IOä»»åŠ¡çš„å®ç°ä¹Ÿå¾ˆç®€å•ï¼Œå®ƒè¢«
-	 * å®šä¹‰ä¸ºä¸€ä¸ªåŒå‘å¾ªç¯é“¾è¡¨ï¼Œé“¾è¡¨çš„èŠ‚ç‚¹ä¸ºHandlerDiscriptor.å…¶å®ç°ç±»ä¸ºHandlerSetï¼Œè¯¥ç±»å®ç°äº†å¯¹é“¾è¡¨çš„å¢åˆ æ”¹
-	 * æŸ¥æ“ä½œã€‚ä¸ä¹‹å¯¹åº”çš„ï¼Œä½œè€…è¿˜å®šä¹‰äº†ä¸€ä¸ªè¿­ä»£å™¨ç±»HandlerIteratorï¼Œç”¨äºéå†é“¾è¡¨ã€‚è€Œè°ƒåº¦ç¨‹åºåˆ™å®ç°ä¸Šé¢æ‰€æåˆ°çš„
-	 * ä¸‰æ­¥æ“ä½œï¼Œæ¥ä¾æ¬¡æ‰§è¡Œå„ç±»ä»»åŠ¡ã€‚ç°åœ¨ç»™å‡ºè¯¥å‡½æ•°çš„å®ç°
+	 * BasicTaskSchedulerÊµÏÖÁË×îºóÒ»¸öÈÎÎñ£¬¼´IOÊÂ¼şºÍºËĞÄµ÷¶È³ÌĞòSingleStep¡£IOÈÎÎñµÄÊµÏÖÒ²ºÜ¼òµ¥£¬Ëü±»
+	 * ¶¨ÒåÎªÒ»¸öË«ÏòÑ­»·Á´±í£¬Á´±íµÄ½ÚµãÎªHandlerDiscriptor.ÆäÊµÏÖÀàÎªHandlerSet£¬¸ÃÀàÊµÏÖÁË¶ÔÁ´±íµÄÔöÉ¾¸Ä
+	 * ²é²Ù×÷¡£ÓëÖ®¶ÔÓ¦µÄ£¬×÷Õß»¹¶¨ÒåÁËÒ»¸öµü´úÆ÷ÀàHandlerIterator£¬ÓÃÓÚ±éÀúÁ´±í¡£¶øµ÷¶È³ÌĞòÔòÊµÏÖÉÏÃæËùÌáµ½µÄ
+	 * Èı²½²Ù×÷£¬À´ÒÀ´ÎÖ´ĞĞ¸÷ÀàÈÎÎñ¡£ÏÖÔÚ¸ø³ö¸Ãº¯ÊıµÄÊµÏÖ
 	 */
 	// Call the handler function for one readable socket:
 	/*
-	 * è¿­ä»£å™¨
+	 * µü´úÆ÷
 	 */
 
 	HandlerIterator iter(*fHandlers);
@@ -167,8 +167,8 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	// To ensure forward progress through the handlers, begin past the last
 	// socket number that we handled:
 	/*
-	 * æ‰¾åˆ°ä¸Šæ¬¡æ‰§è¡Œåçš„å¤„ç†ç¨‹åºé˜Ÿåˆ—ä¸­çš„ä¸‹ä¸€ä¸ª
-	 * è¿™é‡Œå…ˆæ‰¾åˆ°ä¸Šæ¬¡æ‰§è¡Œæ—¶çš„socketå·
+	 * ÕÒµ½ÉÏ´ÎÖ´ĞĞºóµÄ´¦Àí³ÌĞò¶ÓÁĞÖĞµÄÏÂÒ»¸ö
+	 * ÕâÀïÏÈÕÒµ½ÉÏ´ÎÖ´ĞĞÊ±µÄsocketºÅ
 	 */
 	if (fLastHandledSocketNum >= 0) {
 		while ((handler = iter.next()) != NULL) {
@@ -176,7 +176,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 				break;
 		}
 		/*
-		 * æ²¡æœ‰æ‰¾åˆ°ï¼Œå¯èƒ½å·²ç»è¢«ç§»é™¤ï¼Œé‡ç½®å»¶æ—¶é˜Ÿåˆ—
+		 * Ã»ÓĞÕÒµ½£¬¿ÉÄÜÒÑ¾­±»ÒÆ³ı£¬ÖØÖÃÑÓÊ±¶ÓÁĞ
 		 */
 		if (handler == NULL) {
 			fLastHandledSocketNum = -1;
@@ -185,19 +185,19 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	}
 
 	/*
-	 * ä»æ‰¾åˆ°çš„handlerå¼€å§‹ï¼Œæ‰§è¡Œå…¶ä¸‹ä¸€ä¸ªï¼Œä¸ç®¡å…¶çŠ¶æ€æ˜¯ä»€ä¹ˆï¼Œçš†æ‰§è¡Œ
-	 * å½“ç„¶ï¼Œä¹Ÿå¯èƒ½ä»é˜Ÿåˆ—å¤´å¼€å§‹æ‰§è¡Œ
+	 * ´ÓÕÒµ½µÄhandler¿ªÊ¼£¬Ö´ĞĞÆäÏÂÒ»¸ö£¬²»¹ÜÆä×´Ì¬ÊÇÊ²Ã´£¬½ÔÖ´ĞĞ
+	 * µ±È»£¬Ò²¿ÉÄÜ´Ó¶ÓÁĞÍ·¿ªÊ¼Ö´ĞĞ
 	 */
 	/*
-	 * åœ¨è°ƒç”¨selectå‡½æ•°åï¼Œç”¨FD_ISSETæ¥æ£€æµ‹fdåœ¨fdseté›†åˆä¸­çš„çŠ¶æ€æ˜¯å¦å˜åŒ–
-	 * è¿”å›æ•´å½¢ï¼Œå½“æ£€æµ‹åˆ°fdçŠ¶æ€å‘ç”Ÿå˜åŒ–æ—¶è¿”å›çœŸï¼ˆé0ï¼‰ï¼Œå¦åˆ™ï¼Œè¿”å›å‡ï¼ˆ0ï¼‰
+	 * ÔÚµ÷ÓÃselectº¯Êıºó£¬ÓÃFD_ISSETÀ´¼ì²âfdÔÚfdset¼¯ºÏÖĞµÄ×´Ì¬ÊÇ·ñ±ä»¯
+	 * ·µ»ØÕûĞÎ£¬µ±¼ì²âµ½fd×´Ì¬·¢Éú±ä»¯Ê±·µ»ØÕæ£¨·Ç0£©£¬·ñÔò£¬·µ»Ø¼Ù£¨0£©
 	 */
 	while ((handler = iter.next()) != NULL) {
 		int sock = handler->socketNum; // alias
 		int resultConditionSet = 0;
 
 		/*
-		 * æ£€æŸ¥
+		 * ¼ì²é
 		 */
 		if (FD_ISSET(sock, &readSet) && FD_ISSET(sock, &fReadSet)/*sanity check*/)
 			resultConditionSet |= SOCKET_READABLE;
@@ -210,13 +210,13 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 				&& handler->handlerProc != NULL) {
 
 			/*
-			 * ä¿å­˜sockå·ï¼Œè°ƒåº¦ç¨‹åºä¸‹æ¬¡å°†ä»è¯¥ä½ç½®ç»§ç»­æ‰§è¡Œï¼Œä¸‹åŒ
+			 * ±£´æsockºÅ£¬µ÷¶È³ÌĞòÏÂ´Î½«´Ó¸ÃÎ»ÖÃ¼ÌĞøÖ´ĞĞ£¬ÏÂÍ¬
 			 */
 			fLastHandledSocketNum = sock;
 			// Note: we set "fLastHandledSocketNum" before calling the handler,
 			// in case the handler calls "doEventLoop()" reentrantly.
 			/*
-			 * è°ƒç”¨äº‹ä»¶å¤„ç†å‡½æ•°
+			 * µ÷ÓÃÊÂ¼ş´¦Àíº¯Êı
 			 */
 			(*handler->handlerProc)(handler->clientData, resultConditionSet);
 			break;
@@ -224,9 +224,9 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 	}
 
 	/*
-	 * æˆ‘ä»¬æ²¡æœ‰è°ƒç”¨å¤„ç†ç¨‹åºï¼Œå› æ­¤é‡å†æ¥ä¸€æ¬¡
-	 * é€ æˆè¿™æ ·çš„åŸå› å¯èƒ½æ˜¯ä»ä¸Šä¸€æ¬¡æ‰§è¡Œå¤„ç†ç¨‹åºçš„ä½ç½®å‘åæ²¡æœ‰æ‰¾åˆ°ä»»ä½•å¯æ‰§è¡Œçš„å¤„ç†ç¨‹åºäº†
-	 * äºæ˜¯ä»å¤´å¼€å§‹å¯»æ‰¾å¤„ç†ç¨‹åº
+	 * ÎÒÃÇÃ»ÓĞµ÷ÓÃ´¦Àí³ÌĞò£¬Òò´ËÖØÔÙÀ´Ò»´Î
+	 * Ôì³ÉÕâÑùµÄÔ­Òò¿ÉÄÜÊÇ´ÓÉÏÒ»´ÎÖ´ĞĞ´¦Àí³ÌĞòµÄÎ»ÖÃÏòºóÃ»ÓĞÕÒµ½ÈÎºÎ¿ÉÖ´ĞĞµÄ´¦Àí³ÌĞòÁË
+	 * ÓÚÊÇ´ÓÍ·¿ªÊ¼Ñ°ÕÒ´¦Àí³ÌĞò
 	 */
 	if (handler == NULL && fLastHandledSocketNum >= 0) {
 		// We didn't call a handler, but we didn't get to check all of them,
@@ -251,40 +251,40 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 			}
 		}
 		/*
-		 * è°ƒç”¨äº‹ä»¶å¤„ç†å‡½æ•°
+		 * µ÷ÓÃÊÂ¼ş´¦Àíº¯Êı
 		 */
 		/*
-		 * ä¾ç„¶æ²¡æœ‰æ‰¾åˆ°ä»»ä½•å¯æ‰§è¡Œçš„handler
-		 * å°†å…¶å€¼ç½®ä¸º-1
-		 * ä»¥å‘Šè¯‰å¤„ç†ç¨‹åºï¼Œä¸‹æ¬¡åº”è¯¥ä»å¤´å¼€å§‹æ‰¾handler
+		 * ÒÀÈ»Ã»ÓĞÕÒµ½ÈÎºÎ¿ÉÖ´ĞĞµÄhandler
+		 * ½«ÆäÖµÖÃÎª-1
+		 * ÒÔ¸æËß´¦Àí³ÌĞò£¬ÏÂ´ÎÓ¦¸Ã´ÓÍ·¿ªÊ¼ÕÒhandler
 		 */
 		if (handler == NULL)
 			fLastHandledSocketNum = -1;//because we didn't call a handler
 	}
 
 	/*
-	 * å“åº”æ–°è§¦å‘çš„äº‹ä»¶
+	 * ÏìÓ¦ĞÂ´¥·¢µÄÊÂ¼ş
 	 */
 	// Also handle any newly-triggered event (Note that we do this *after* calling a socket handler,
 	// in case the triggered event handler modifies The set of readable sockets.)
 	if (fTriggersAwaitingHandling != 0) {
 
 		/*
-		 * é¦–å…ˆæ£€æŸ¥æ˜¯å¦åªæœ‰ä¸€ä¸ªå¾…è§¦å‘äº‹ä»¶
+		 * Ê×ÏÈ¼ì²éÊÇ·ñÖ»ÓĞÒ»¸ö´ı´¥·¢ÊÂ¼ş
 		 */
 		if (fTriggersAwaitingHandling == fLastUsedTriggerMask) {
 			// Common-case optimization for a single event trigger:
 			fTriggersAwaitingHandling = 0;
 			if (fTriggeredEventHandlers[fLastUsedTriggerNum] != NULL) {
 				/*
-				 * æ‰§è¡Œäº‹ä»¶å¤„ç†å‡½æ•°
+				 * Ö´ĞĞÊÂ¼ş´¦Àíº¯Êı
 				 */
 				(*fTriggeredEventHandlers[fLastUsedTriggerNum])(
 						fTriggeredEventClientDatas[fLastUsedTriggerNum]);
 			}
 		} else {
 			/*
-			 * å¯»æ‰¾å¾…æ‰§è¡Œçš„è§¦å‘äº‹ä»¶
+			 * Ñ°ÕÒ´ıÖ´ĞĞµÄ´¥·¢ÊÂ¼ş
 			 */
 			// Look for an event trigger that needs handling (making sure that we make forward progress through all possible triggers):
 			unsigned i = fLastUsedTriggerNum;
@@ -300,7 +300,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 					fTriggersAwaitingHandling &= ~mask;
 					if (fTriggeredEventHandlers[i] != NULL) {
 						/*
-						 * å“åº”äº‹ä»¶
+						 * ÏìÓ¦ÊÂ¼ş
 						 */
 						(*fTriggeredEventHandlers[i])(
 								fTriggeredEventClientDatas[i]);
@@ -314,7 +314,7 @@ void BasicTaskScheduler::SingleStep(unsigned maxDelayTime) {
 		}
 	}
 	/*
-	 * æœ€åæ‰§è¡Œä¸€ä¸ªæœ€è¿«åˆ‡çš„ä»»åŠ¡
+	 * ×îºóÖ´ĞĞÒ»¸ö×îÆÈÇĞµÄÈÎÎñ
 	 */
 	// Also handle any delayed event that may have come due.
 	fDelayQueue.handleAlarm();

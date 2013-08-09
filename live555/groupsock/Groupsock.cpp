@@ -88,15 +88,15 @@ destRecord::~destRecord() {
 }
 
 /*
- * ç±»Groupsockï¼šè¿™ä¸ªæ˜¯å­˜æ”¾åœ¨å•ç‹¬çš„åº“Groupsockä¸­ã€‚å®ƒå°è£…äº†socketæ“ä½œï¼Œå¢åŠ äº†å¤šæ’­æ”¾æ”¯æŒå’Œä¸€å¯¹
- * å¤šå•æ’­çš„åŠŸèƒ½ã€‚ä½†æˆ‘åªçœ‹åˆ°å®ƒå¯¹UDPçš„æ”¯æŒï¼Œå¥½åƒä¸æ”¯æŒTCPã€‚å®ƒç®¡ç†ç€ä¸€ä¸ªæœ¬åœ°socketå’Œå¤šä¸ªç›®çš„åœ°å€ï¼Œ
- * å› ä¸ºæ˜¯UDPï¼Œæ‰€ä»¥åªéœ€è¦çŸ¥é“å¯¹æ–¹çš„åœ°å€å’Œç«¯å£å·å³å¯å‘é€æ•°æ®ã€‚Groupsockçš„æ„é€ å‡½æ•°æœ‰ä¸€ä¸ªå‚æ•°æ˜¯
- * struct in_addr const& groupAddr,åœ¨æ„é€ å‡½æ•°ä¸­é¦–å…ˆä¼šè°ƒç”¨çˆ¶ç±»æ„é€ å‡½æ•°åˆ›å»ºsocketå¯¹è±¡ï¼Œç„¶å
- * åˆ¤æ–­è¿™ä¸ªåœ°å€ï¼Œè‹¥æ˜¯å¤šæ’­åœ°å€ï¼Œåˆ™åŠ å…¥å¤šæ’­ç»„ã€‚Groupsockçš„ä¸¤ä¸ªæˆå‘˜å˜é‡destRecord* fDestså’Œ
- * DirectNetInterfaceSet fMemberséƒ½è¡¨ç¤ºç›®çš„åœ°å€é›†åˆï¼Œä½†æˆ‘å§‹ç»ˆçœ‹ä¸å‡ºDirectNetInterfaceSet
- * fMembersæœ‰ä»€ä¹ˆç”¨ï¼Œä¸”DirectNetInterfaceSetæ˜¯ä¸€ä¸ªæ²¡æœ‰è¢«ç»§æ‰¿çš„è™šç±»ï¼Œçœ‹èµ·æ¥fMembersæ²¡æœ‰ä»€ä¹ˆ
- * ç”¨ã€‚ä»…fDeskä¹Ÿå¤Ÿç”¨äº†ï¼Œåœ¨addDestination()å’ŒremoveDestination()å‡½æ•°ä¸­å°±æ˜¯æ“ä½œfDeskï¼Œæ·»åŠ 
- * æˆ–åˆ é™¤ç›®çš„åœ°å€
+ * ÀàGroupsock£ºÕâ¸öÊÇ´æ·ÅÔÚµ¥¶ÀµÄ¿âGroupsockÖĞ¡£Ëü·â×°ÁËsocket²Ù×÷£¬Ôö¼ÓÁË¶à²¥·ÅÖ§³ÖºÍÒ»¶Ô
+ * ¶àµ¥²¥µÄ¹¦ÄÜ¡£µ«ÎÒÖ»¿´µ½Ëü¶ÔUDPµÄÖ§³Ö£¬ºÃÏñ²»Ö§³ÖTCP¡£Ëü¹ÜÀí×ÅÒ»¸ö±¾µØsocketºÍ¶à¸öÄ¿µÄµØÖ·£¬
+ * ÒòÎªÊÇUDP£¬ËùÒÔÖ»ĞèÒªÖªµÀ¶Ô·½µÄµØÖ·ºÍ¶Ë¿ÚºÅ¼´¿É·¢ËÍÊı¾İ¡£GroupsockµÄ¹¹Ôìº¯ÊıÓĞÒ»¸ö²ÎÊıÊÇ
+ * struct in_addr const& groupAddr,ÔÚ¹¹Ôìº¯ÊıÖĞÊ×ÏÈ»áµ÷ÓÃ¸¸Àà¹¹Ôìº¯Êı´´½¨socket¶ÔÏó£¬È»ºó
+ * ÅĞ¶ÏÕâ¸öµØÖ·£¬ÈôÊÇ¶à²¥µØÖ·£¬Ôò¼ÓÈë¶à²¥×é¡£GroupsockµÄÁ½¸ö³ÉÔ±±äÁ¿destRecord* fDestsºÍ
+ * DirectNetInterfaceSet fMembers¶¼±íÊ¾Ä¿µÄµØÖ·¼¯ºÏ£¬µ«ÎÒÊ¼ÖÕ¿´²»³öDirectNetInterfaceSet
+ * fMembersÓĞÊ²Ã´ÓÃ£¬ÇÒDirectNetInterfaceSetÊÇÒ»¸öÃ»ÓĞ±»¼Ì³ĞµÄĞéÀà£¬¿´ÆğÀ´fMembersÃ»ÓĞÊ²Ã´
+ * ÓÃ¡£½öfDeskÒ²¹»ÓÃÁË£¬ÔÚaddDestination()ºÍremoveDestination()º¯ÊıÖĞ¾ÍÊÇ²Ù×÷fDesk£¬Ìí¼Ó
+ * »òÉ¾³ıÄ¿µÄµØÖ·
  */
 ///////// Groupsock //////////
 
@@ -175,18 +175,18 @@ Groupsock::~Groupsock() {
 		env() << *this << ": deleting\n";
 }
 /*
- * æ”¹å˜ç›®çš„åœ°å€çš„å‚æ•°
- * newDestAddræ˜¯æ–°çš„ç›®çš„åœ°å€
- * newDestPortæ˜¯æ–°çš„ç›®çš„ç«¯å£
- * newDestTTLæ˜¯æ–°çš„TTL
+ * ¸Ä±äÄ¿µÄµØÖ·µÄ²ÎÊı
+ * newDestAddrÊÇĞÂµÄÄ¿µÄµØÖ·
+ * newDestPortÊÇĞÂµÄÄ¿µÄ¶Ë¿Ú
+ * newDestTTLÊÇĞÂµÄTTL
  */
 void Groupsock::changeDestinationParameters(struct in_addr const& newDestAddr,
 		Port newDestPort, int newDestTTL) {
 	if (fDests == NULL)
 		return;
 	/*
-	 * è·å–ç¬¬ä¸€ä¸ªç›®çš„åœ°å€ï¼ˆæ­¤å¤„ä¸æ˜¯å¾ˆæ˜ç™½ï¼šfDestæ˜¯ä¸€ä¸ªå•å‘é“¾è¡¨ï¼Œæ¯æ¬¡æ·»åŠ ä¸€ä¸ªç›®çš„åœ°å€ï¼Œ
-	 * éƒ½ä¼šæŠŠå®ƒæ’å…¥åˆ°æœ€å‰é¢ï¼Œéš¾é“è¿™ä¸ªå‡½æ•°ä»…æ”¹å˜æœ€åä¸€ä¸ªæ·»åŠ çš„ç›®çš„åœ°å€ï¼Ÿï¼‰
+	 * »ñÈ¡µÚÒ»¸öÄ¿µÄµØÖ·£¨´Ë´¦²»ÊÇºÜÃ÷°×£ºfDestÊÇÒ»¸öµ¥ÏòÁ´±í£¬Ã¿´ÎÌí¼ÓÒ»¸öÄ¿µÄµØÖ·£¬
+	 * ¶¼»á°ÑËü²åÈëµ½×îÇ°Ãæ£¬ÄÑµÀÕâ¸öº¯Êı½ö¸Ä±ä×îºóÒ»¸öÌí¼ÓµÄÄ¿µÄµØÖ·£¿£©
 	 */
 	struct in_addr destAddr = fDests->fGroupEId.groupAddress();
 	if (newDestAddr.s_addr != 0) {
@@ -196,7 +196,7 @@ void Groupsock::changeDestinationParameters(struct in_addr const& newDestAddr,
 			// we want to join it also.  (If this is not in fact the case, then
 			// call "multicastSendOnly()" afterwards.)
 			/*
-			 * å¦‚æœç›®çš„åœ°å€æ˜¯ä¸€ä¸ªå¤šæ’­åœ°å€ï¼Œåˆ™ç¦»å¼€è€çš„å¤šæ’­ç»„ï¼ŒåŠ å…¥æ–°çš„å¤šæ’­ç»„
+			 * Èç¹ûÄ¿µÄµØÖ·ÊÇÒ»¸ö¶à²¥µØÖ·£¬ÔòÀë¿ªÀÏµÄ¶à²¥×é£¬¼ÓÈëĞÂµÄ¶à²¥×é
 			 */
 			socketLeaveGroup(env(), socketNum(), destAddr.s_addr);
 			socketJoinGroup(env(), socketNum(), newDestAddr.s_addr);
@@ -209,13 +209,13 @@ void Groupsock::changeDestinationParameters(struct in_addr const& newDestAddr,
 		if (newDestPort.num() != destPortNum && IsMulticastAddress(
 				destAddr.s_addr)) {
 			/*
-			 * å¦‚æœç«¯å£å·ä¹Ÿä¸ä¸€æ ·ï¼Œåˆ™å…ˆæ›´æ”¹æœ¬èº«socketçš„ç«¯å£
-			 * ï¼ˆå…¶å®æ˜¯å…³æ‰åŸå…ˆçš„socketçš„ï¼Œå†ä»¥æ–°ç«¯å£æ‰“å¼€ä¸€ä¸ªsocket
+			 * Èç¹û¶Ë¿ÚºÅÒ²²»Ò»Ñù£¬ÔòÏÈ¸ü¸Ä±¾ÉísocketµÄ¶Ë¿Ú
+			 * £¨ÆäÊµÊÇ¹ØµôÔ­ÏÈµÄsocketµÄ£¬ÔÙÒÔĞÂ¶Ë¿Ú´ò¿ªÒ»¸ösocket
 			 */
 			// Also bind to the new port number:
 			changePort(newDestPort);
 			/*
-			 * ç„¶åæŠŠæ–°çš„socketåŠ å…¥åˆ°æ–°çš„å¤šæ’­ç»„
+			 * È»ºó°ÑĞÂµÄsocket¼ÓÈëµ½ĞÂµÄ¶à²¥×é
 			 */
 			// And rejoin the multicast group:
 			socketJoinGroup(env(), socketNum(), destAddr.s_addr);
@@ -229,7 +229,7 @@ void Groupsock::changeDestinationParameters(struct in_addr const& newDestAddr,
 		destTTL = (u_int8_t) newDestTTL;
 
 	/*
-	 * ç›®çš„åœ°å€çš„æ‰€æœ‰ä¿¡æ¯éƒ½åœ¨fGroupIdä¸­ï¼Œæ‰€ä»¥æ”¹å˜æˆå‘˜çš„fGroupEIdã€‚
+	 * Ä¿µÄµØÖ·µÄËùÓĞĞÅÏ¢¶¼ÔÚfGroupIdÖĞ£¬ËùÒÔ¸Ä±ä³ÉÔ±µÄfGroupEId¡£
 	 */
 	fDests->fGroupEId = GroupEId(destAddr, destPortNum, destTTL);
 }

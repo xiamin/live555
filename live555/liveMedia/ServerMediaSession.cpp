@@ -86,14 +86,14 @@ ServerMediaSession::~ServerMediaSession() {
 	delete[] fMiscSDPLines;
 }
 /*
- * live555æ”¯æŒçš„å¤åˆå®¹å™¨ç±»å‹åªæœ‰*.mpg,*.mkv, webm,å¯ä»¥çœ‹å‡ºç¨‹åºä¸­ä¸ºå®¹å™¨ä¸­çš„æ¯ä¸€ä¸ªæµå»ºç«‹ä¸€ä¸ªsubsession
- * ç„¶åé€šè¿‡ServerMediaSession::addSubsessionå‡½æ•°å°†subsessionåŠ å…¥åˆ°ServerMediaSession
+ * live555Ö§³ÖµÄ¸´ºÏÈİÆ÷ÀàĞÍÖ»ÓĞ*.mpg,*.mkv, webm,¿ÉÒÔ¿´³ö³ÌĞòÖĞÎªÈİÆ÷ÖĞµÄÃ¿Ò»¸öÁ÷½¨Á¢Ò»¸ösubsession
+ * È»ºóÍ¨¹ıServerMediaSession::addSubsessionº¯Êı½«subsession¼ÓÈëµ½ServerMediaSession
  *
- * ä»ä¸Šé¢çš„ä»£ç ä¸­çœ‹åˆ°ï¼ŒServerMediaSession ä¸­è®°å½•äº†subsessionçš„é“¾è¡¨
- * ä»(4)ä¸­å¯ä»¥çœ‹åˆ°ï¼Œæ¯ä¸€ç§ç±»å‹çš„åª’ä½“æµéƒ½æœ‰è‡ªå·±çš„subsessionå®ç°ï¼Œ(4)ä¸­å®ä¾‹åŒ–ä¸€ä¸ªH264çš„sessionä»£ç ä¸º
+ * ´ÓÉÏÃæµÄ´úÂëÖĞ¿´µ½£¬ServerMediaSession ÖĞ¼ÇÂ¼ÁËsubsessionµÄÁ´±í
+ * ´Ó(4)ÖĞ¿ÉÒÔ¿´µ½£¬Ã¿Ò»ÖÖÀàĞÍµÄÃ½ÌåÁ÷¶¼ÓĞ×Ô¼ºµÄsubsessionÊµÏÖ£¬(4)ÖĞÊµÀı»¯Ò»¸öH264µÄsession´úÂëÎª
  * H264VideoFileServerMediaSubsession::createNew(env, fileName, reuseSource)
  *
- * ç»§æ‰¿å…³ç³»ï¼šH264VideoFileServerMediaSubsession->FileServerMediaSubsession
+ * ¼Ì³Ğ¹ØÏµ£ºH264VideoFileServerMediaSubsession->FileServerMediaSubsession
  * ->OnDemandServerMediaSubsession->ServerMediaSubsession->Medium
  *
  */
@@ -264,12 +264,12 @@ char* ServerMediaSession::generateSDPDescription() {
 			rangeLine = strDup("");
 		}
 
-		char const* const sdpPrefixFmt = "v=0\r\n"		//åè®®ç‰ˆæœ¬
-			"o=- %ld%06ld %d IN IP4 %s\r\n"				//æ‰€æœ‰è€…/åˆ›å»ºè€…å’Œä¼šè¯æ ‡è¯†ç¬¦
-			"s=%s\r\n"									//ä¼šè¯åç§°
-			"i=%s\r\n"									//ä¼šè¯ä¿¡æ¯
-			"t=0 0\r\n"									//ä¼šè¯æ´»åŠ¨æ—¶é—´
-			"a=tool:%s%s\r\n"							//0ä¸ªæˆ–å¤šä¸ªä¼šè¯å±æ€§è¡Œ
+		char const* const sdpPrefixFmt = "v=0\r\n"		//Ğ­Òé°æ±¾
+			"o=- %ld%06ld %d IN IP4 %s\r\n"				//ËùÓĞÕß/´´½¨ÕßºÍ»á»°±êÊ¶·û
+			"s=%s\r\n"									//»á»°Ãû³Æ
+			"i=%s\r\n"									//»á»°ĞÅÏ¢
+			"t=0 0\r\n"									//»á»°»î¶¯Ê±¼ä
+			"a=tool:%s%s\r\n"							//0¸ö»ò¶à¸ö»á»°ÊôĞÔĞĞ
 			"a=type:broadcast\r\n"
 			"a=control:*\r\n"
 			"%s"

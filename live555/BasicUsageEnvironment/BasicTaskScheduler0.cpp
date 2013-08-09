@@ -44,14 +44,14 @@ private:
 ////////// BasicTaskScheduler0 //////////
 
 /*
- * BasicTaskScheduler0å®ç°äº†å»¶è¿Ÿä»»åŠ¡å’Œè§¦å‘äº‹ä»¶ã€‚è§¦å‘äº‹ä»¶æ˜¯é€šè¿‡ä¸€ä¸ªæœºå™¨å­—é•¿æ‰€èƒ½è¡¨ç¤ºçš„ä½æ¥å¤„ç†çš„ï¼Œåœ¨å†…éƒ¨
- * è¢«å®šä¹‰ä¸ºfTriggersAwaitingHandlingï¼Œæ˜¯intç±»å‹ã€‚ä»æœ€é«˜ä½å¼€å§‹ä¿å­˜ã€‚æ¯”å¦‚ï¼Œå‡è®¾ç³»ç»Ÿæ˜¯32ä½æœºï¼Œå¹¶ä¸”åªæœ‰
- * ä¸€ä¸ªå¾…è§¦å‘äº‹ä»¶ï¼Œé‚£ä¹ˆfTriggerAwaitingHandlingçš„å€¼ä¸º0x80000000.è¯¥ç±»ä¸­è¿˜ä¿å­˜äº†ä¸Šä¸€æ¬¡è§¦å‘äº‹ä»¶çš„IDä»¥
- * åŠmaskï¼Œä½œä¸ºä¸‹ä¸€ä¸ªè°ƒåº¦çš„èµ·ç‚¹ã€‚è¿™æ ·ä¿è¯äº†è°ƒåº¦ç¨‹åºèƒ½å¤Ÿæœ‰åºçš„æ‰§è¡Œæ‰€æœ‰å¾…è§¦å‘äº‹ä»¶ï¼Œè€Œä¸æ˜¯æ¯æ¬¡éƒ½ä»å¤´å¼€å§‹ã€‚
+ * BasicTaskScheduler0ÊµÏÖÁËÑÓ³ÙÈÎÎñºÍ´¥·¢ÊÂ¼ş¡£´¥·¢ÊÂ¼şÊÇÍ¨¹ıÒ»¸ö»úÆ÷×Ö³¤ËùÄÜ±íÊ¾µÄÎ»À´´¦ÀíµÄ£¬ÔÚÄÚ²¿
+ * ±»¶¨ÒåÎªfTriggersAwaitingHandling£¬ÊÇintÀàĞÍ¡£´Ó×î¸ßÎ»¿ªÊ¼±£´æ¡£±ÈÈç£¬¼ÙÉèÏµÍ³ÊÇ32Î»»ú£¬²¢ÇÒÖ»ÓĞ
+ * Ò»¸ö´ı´¥·¢ÊÂ¼ş£¬ÄÇÃ´fTriggerAwaitingHandlingµÄÖµÎª0x80000000.¸ÃÀàÖĞ»¹±£´æÁËÉÏÒ»´Î´¥·¢ÊÂ¼şµÄIDÒÔ
+ * ¼°mask£¬×÷ÎªÏÂÒ»¸öµ÷¶ÈµÄÆğµã¡£ÕâÑù±£Ö¤ÁËµ÷¶È³ÌĞòÄÜ¹»ÓĞĞòµÄÖ´ĞĞËùÓĞ´ı´¥·¢ÊÂ¼ş£¬¶ø²»ÊÇÃ¿´Î¶¼´ÓÍ·¿ªÊ¼¡£
  */
 
 /*
- * ç±»BasicTaskScheduler0çš„æ„é€ å‡½æ•°ï¼Œè¿›è¡Œä¸€ç³»åˆ—åˆå§‹åŒ–å·¥ä½œ
+ * ÀàBasicTaskScheduler0µÄ¹¹Ôìº¯Êı£¬½øĞĞÒ»ÏµÁĞ³õÊ¼»¯¹¤×÷
  */
 BasicTaskScheduler0::BasicTaskScheduler0() :
 	fLastHandledSocketNum(-1), fTriggersAwaitingHandling(0),
@@ -64,7 +64,7 @@ BasicTaskScheduler0::BasicTaskScheduler0() :
 	}
 }
 /*
- * ææ„å‡½æ•°
+ * Îö¹¹º¯Êı
  */
 BasicTaskScheduler0::~BasicTaskScheduler0() {
 	delete fHandlers;
@@ -74,15 +74,15 @@ TaskToken BasicTaskScheduler0::scheduleDelayedTask(int64_t microseconds,
 		TaskFunc* proc, void* clientData) {
 	if (microseconds < 0)
 		microseconds = 0;
-	//DelayIntervalæ˜¯è¡¨ç¤ºæ—¶é—´å·®çš„ç»“æ„
+	//DelayIntervalÊÇ±íÊ¾Ê±¼ä²îµÄ½á¹¹
 	DelayInterval timeToDelay((long) (microseconds / 1000000),
 			(long) (microseconds % 1000000));
-	//åˆ›å»ºdelayQueueä¸­çš„ä¸€é¡¹
+	//´´½¨delayQueueÖĞµÄÒ»Ïî
 	AlarmHandler* alarmHandler =
 			new AlarmHandler(proc, clientData, timeToDelay);
-	//åŠ å…¥Delayqueue
+	//¼ÓÈëDelayqueue
 	fDelayQueue.addEntry(alarmHandler);
-	//è¿”å›delay taskçš„å”¯ä¸€æ ‡å¿—
+	//·µ»Ødelay taskµÄÎ¨Ò»±êÖ¾
 	return (void*) (alarmHandler->token());
 }
 
@@ -104,10 +104,10 @@ void BasicTaskScheduler0::doEventLoop(char* watchVariable) {
 
 EventTriggerId BasicTaskScheduler0::createEventTrigger(
 		TaskFunc* eventHandlerProc) {
-	unsigned i = fLastUsedTriggerNum;	//unsigned = unsigned int 32ä½ï¼Œ4ä¸ªå­—èŠ‚
+	unsigned i = fLastUsedTriggerNum;	//unsigned = unsigned int 32Î»£¬4¸ö×Ö½Ú
 	EventTriggerId mask = fLastUsedTriggerMask;
 	/*
-	 * åœ¨æ•°ç»„ä¸­å¯»æ‰¾ä¸€ä¸ªæœªä½¿ç”¨çš„ ,æŠŠeventHandlerProcåˆ†é…åˆ°è¿™ä¸€é¡¹
+	 * ÔÚÊı×éÖĞÑ°ÕÒÒ»¸öÎ´Ê¹ÓÃµÄ ,°ÑeventHandlerProc·ÖÅäµ½ÕâÒ»Ïî
 	 */
 	do {
 		i = (i + 1) % MAX_NUM_EVENT_TRIGGERS;
@@ -123,11 +123,11 @@ EventTriggerId BasicTaskScheduler0::createEventTrigger(
 			fLastUsedTriggerMask = mask;
 			fLastUsedTriggerNum = i;
 
-			return mask; //åˆ†é…æˆåŠŸï¼Œè¿”å›å€¼è¡¨æ˜äº†ç¬¬å‡ é¡¹
+			return mask; //·ÖÅä³É¹¦£¬·µ»ØÖµ±íÃ÷ÁËµÚ¼¸Ïî
 		}
-	} while (i != fLastUsedTriggerNum);//è¡¨æ˜äº†åœ¨æ•°ç»„ä¸­å¾ªç¯ä¸€åœˆ
+	} while (i != fLastUsedTriggerNum);//±íÃ÷ÁËÔÚÊı×éÖĞÑ­»·Ò»È¦
 
-	//æ•°ç»„ä¸­çš„æ‰€æœ‰é¡¹éƒ½è¢«å ç”¨ï¼Œè¿”å›è¡¨æ˜å¤±è´¥
+	//Êı×éÖĞµÄËùÓĞÏî¶¼±»Õ¼ÓÃ£¬·µ»Ø±íÃ÷Ê§°Ü
 	// All available event triggers are allocated; return 0 instead:
 	return 0;
 }
@@ -157,7 +157,7 @@ void BasicTaskScheduler0::triggerEvent(EventTriggerId eventTriggerId,
 	// First, record the "clientData".  (Note that we allow "eventTriggerId" to be a combination of bits for multiple events.)
 	EventTriggerId mask = 0x80000000;
 	/*
-	 * ä»å¤´åˆ°å°¾æŸ¥æ‰¾eventTriggerIdå¯¹åº”çš„é¡¹ï¼Œä¿å­˜ä¸‹clientData
+	 * ´ÓÍ·µ½Î²²éÕÒeventTriggerId¶ÔÓ¦µÄÏî£¬±£´æÏÂclientData
 	 */
 	for (unsigned i = 0; i < MAX_NUM_EVENT_TRIGGERS; ++i) {
 		if ((eventTriggerId & mask) != 0) {
@@ -187,7 +187,7 @@ HandlerDescriptor::HandlerDescriptor(HandlerDescriptor* nextHandler) :
 	}
 }
 /*
- * åŒå‘é“¾è¡¨çš„èŠ‚ç‚¹
+ * Ë«ÏòÁ´±íµÄ½Úµã
  */
 HandlerDescriptor::~HandlerDescriptor() {
 	// Unlink this descriptor from a doubly-linked list:
@@ -208,40 +208,40 @@ HandlerSet::~HandlerSet() {
 }
 
 /*
- * socket handlerä¿å­˜åœ¨é˜Ÿåˆ—BasicTaskScheduler0::HandlerSet* fHandlerä¸­
- * event handlerä¿å­˜åœ¨æ•°ç»„BasicTaskScheduler0::TaskFunc* fTriggeredEventHandler
- * [MAX_NUM_EVENT_TRIGGERS]ä¸­
- * delay taskä¿å­˜åœ¨é˜Ÿåˆ—BasicTaskScheduler0::DelayQueue fDelayQueueä¸­
+ * socket handler±£´æÔÚ¶ÓÁĞBasicTaskScheduler0::HandlerSet* fHandlerÖĞ
+ * event handler±£´æÔÚÊı×éBasicTaskScheduler0::TaskFunc* fTriggeredEventHandler
+ * [MAX_NUM_EVENT_TRIGGERS]ÖĞ
+ * delay task±£´æÔÚ¶ÓÁĞBasicTaskScheduler0::DelayQueue fDelayQueueÖĞ
  *
- * socket handlerä¸ºtypedef void BackgroundHandlerProc(void* clientData, int mask);
- * event handlerä¸ºtypedef void TaskFunc(void* clientData);
- * delay task ä¸ºtypedef void TaskFunc(void* clientData);//è·Ÿevent handlerä¸€æ ·
+ * socket handlerÎªtypedef void BackgroundHandlerProc(void* clientData, int mask);
+ * event handlerÎªtypedef void TaskFunc(void* clientData);
+ * delay task Îªtypedef void TaskFunc(void* clientData);//¸úevent handlerÒ»Ñù
  *
- * å†çœ‹ä¸‹å‘ä»»åŠ¡è°ƒåº¦å¯¹è±¡æ·»åŠ ä¸‰ç§ä»»åŠ¡çš„å‡½æ•°çš„æ ·å­
- * delay taskä¸ºï¼švoid setBackgroundHandling(int socketNum, int conditionSetã€€,
+ * ÔÙ¿´ÏÂÏòÈÎÎñµ÷¶È¶ÔÏóÌí¼ÓÈıÖÖÈÎÎñµÄº¯ÊıµÄÑù×Ó
+ * delay taskÎª£ºvoid setBackgroundHandling(int socketNum, int conditionSet¡¡,
  * 						BackgroundHandlerProc* handlerProc, void* clientData)
- * event handlerä¸ºï¼šEventTriggerId createEventTrigger(TaskFunc* eventHandlerProc)
- * delay taskä¸ºï¼šTaskToken scheduleDelayedTask(int64_t microseconds,
+ * event handlerÎª£ºEventTriggerId createEventTrigger(TaskFunc* eventHandlerProc)
+ * delay taskÎª£ºTaskToken scheduleDelayedTask(int64_t microseconds,
  * 												TaskFunc* proc,void* clientData)
  */
 
 /*
- * ä¸‹é¢handlerSetç±»æˆå‘˜çš„å®šä¹‰å®ç°äº†åŒå‘é“¾è¡¨çš„å¢åˆ æŸ¥æ”¹
+ * ÏÂÃæhandlerSetÀà³ÉÔ±µÄ¶¨ÒåÊµÏÖÁËË«ÏòÁ´±íµÄÔöÉ¾²é¸Ä
  */
 /*
- * socket handleræ·»åŠ æ—¶ä¸ºä»€ä¹ˆéœ€è¦é‚£äº›å‚æ•°å‘¢ï¼Ÿsocketnumæ˜¯éœ€è¦çš„ï¼Œå› ä¸ºè¦select socket
- * ï¼ˆsocketNumå³æ˜¯socket(è¿”å›çš„é‚£ä¸ªsocketå¯¹è±¡)ã€‚conditionSetä¹Ÿæ˜¯éœ€è¦çš„ï¼Œå®ƒç”¨äºè¡¨æ˜socket
- * åœ¨selectæ—¶æŸ¥çœ‹å“ªç§çŠ¶æ€ï¼Œæ˜¯å¯è¯»ï¼Œå¯å†™è¿˜æ˜¯å‡ºé”™ï¼Ÿprocå’ŒclientDataç€ä¸¤ä¸ªå‚æ•°å°±ä¸å¿…è¯´äº†
+ * socket handlerÌí¼ÓÊ±ÎªÊ²Ã´ĞèÒªÄÇĞ©²ÎÊıÄØ£¿socketnumÊÇĞèÒªµÄ£¬ÒòÎªÒªselect socket
+ * £¨socketNum¼´ÊÇsocket(·µ»ØµÄÄÇ¸ösocket¶ÔÏó)¡£conditionSetÒ²ÊÇĞèÒªµÄ£¬ËüÓÃÓÚ±íÃ÷socket
+ * ÔÚselectÊ±²é¿´ÄÄÖÖ×´Ì¬£¬ÊÇ¿É¶Á£¬¿ÉĞ´»¹ÊÇ³ö´í£¿procºÍclientData×ÅÁ½¸ö²ÎÊı¾Í²»±ØËµÁË
  *
- * BackgroudHandlerProcçš„å‚æ•°ï¼ŒsocketNumä¸å¿…è§£é‡Šï¼Œmaskæ˜¯ä»€ä¹ˆå‘¢ï¼Ÿå®ƒæ­£æ˜¯å¯¹åº”ç€conditionSetï¼Œ
- * ä½†å®ƒè¡¨æ˜çš„æ˜¯selectä¹‹åçš„ç»“æœï¼Œä¸å¦‚ä¸€ä¸ªsocketå¯èƒ½éœ€è¦æ£€æŸ¥å…¶è¯»/å†™çŠ¶æ€ï¼Œè€Œå½“å‰åªèƒ½è¯»ï¼Œä¸èƒ½å†™ï¼Œé‚£ä¹ˆ
- * maskä¸­å°±åªæœ‰è¡¨æ˜è¯»çš„ä½è¢«è®¾ç½®
+ * BackgroudHandlerProcµÄ²ÎÊı£¬socketNum²»±Ø½âÊÍ£¬maskÊÇÊ²Ã´ÄØ£¿ËüÕıÊÇ¶ÔÓ¦×ÅconditionSet£¬
+ * µ«Ëü±íÃ÷µÄÊÇselectÖ®ºóµÄ½á¹û£¬²»ÈçÒ»¸ösocket¿ÉÄÜĞèÒª¼ì²éÆä¶Á/Ğ´×´Ì¬£¬¶øµ±Ç°Ö»ÄÜ¶Á£¬²»ÄÜĞ´£¬ÄÇÃ´
+ * maskÖĞ¾ÍÖ»ÓĞ±íÃ÷¶ÁµÄÎ»±»ÉèÖÃ
  *
- * event handleræ˜¯è¢«å­˜åœ¨æ•°ç»„ä¸­ã€‚æ•°ç»„å¤§å°å›ºå®šï¼Œæ˜¯32é¡¹ï¼Œç”¨EventTriggerIdæ¥è¡¨ç¤ºæ•°ç»„ä¸­çš„é¡¹ï¼Œ
- * EventTriggerIdæ˜¯ä¸€ä¸ª32ä½æ•´æ•°ï¼Œå› ä¸ºæ•°ç»„æ˜¯32é¡¹ï¼Œæ‰€ä»¥ç”¨EventTriggerIdä¸­çš„ç¬¬nä½ç½®1è¡¨æ˜å¯¹åº”æ•°ç»„
- * ä¸­çš„ç¬¬né¡¹ã€‚æˆå‘˜å˜é‡fTriggerAwaitingHandlingä¹Ÿæ˜¯EventTriggerIdç±»å‹ï¼Œå®ƒé‡Œé¢ç½®1çš„é‚£äº›ä½å¯¹åº”äº†
- * æ•°ç»„ä¸­æ‰€æœ‰éœ€è¦å¤„ç†çš„é¡¹ã€‚è¿™æ ·åšèŠ‚çœäº†å†…å­˜å’Œè®¡ç®—ï¼Œä½†é™ä½äº†ä»£ç çš„å¯è¯»æ€§ï¼Œè€Œä¸”ä¸æ˜¯å¾ˆçµæ´»ï¼Œåªèƒ½æ”¯æŒ32é¡¹
- * æˆ–64é¡¹ï¼Œå…¶ä»–æ•°é‡ä¸è¢«æ”¯æŒ
+ * event handlerÊÇ±»´æÔÚÊı×éÖĞ¡£Êı×é´óĞ¡¹Ì¶¨£¬ÊÇ32Ïî£¬ÓÃEventTriggerIdÀ´±íÊ¾Êı×éÖĞµÄÏî£¬
+ * EventTriggerIdÊÇÒ»¸ö32Î»ÕûÊı£¬ÒòÎªÊı×éÊÇ32Ïî£¬ËùÒÔÓÃEventTriggerIdÖĞµÄµÚnÎ»ÖÃ1±íÃ÷¶ÔÓ¦Êı×é
+ * ÖĞµÄµÚnÏî¡£³ÉÔ±±äÁ¿fTriggerAwaitingHandlingÒ²ÊÇEventTriggerIdÀàĞÍ£¬ËüÀïÃæÖÃ1µÄÄÇĞ©Î»¶ÔÓ¦ÁË
+ * Êı×éÖĞËùÓĞĞèÒª´¦ÀíµÄÏî¡£ÕâÑù×ö½ÚÊ¡ÁËÄÚ´æºÍ¼ÆËã£¬µ«½µµÍÁË´úÂëµÄ¿É¶ÁĞÔ£¬¶øÇÒ²»ÊÇºÜÁé»î£¬Ö»ÄÜÖ§³Ö32Ïî
+ * »ò64Ïî£¬ÆäËûÊıÁ¿²»±»Ö§³Ö
  */
 void HandlerSet::assignHandler(int socketNum, int conditionSet,
 		TaskScheduler::BackgroundHandlerProc* handlerProc, void* clientData) {
