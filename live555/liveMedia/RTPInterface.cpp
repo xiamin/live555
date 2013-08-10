@@ -195,9 +195,11 @@ void RTPInterface
 Boolean RTPInterface::sendPacket(unsigned char* packet, unsigned packetSize) {
   Boolean success = True; // we'll return False instead if any of the sends fail
 
+  //一般的情况下，使用UDP发送
   // Normal case: Send as a UDP packet:
   if (!fGS->output(envir(), fGS->ttl(), packet, packetSize)) success = False;
 
+  //使用TCP发送
   // Also, send over each of our TCP sockets:
   for (tcpStreamRecord* streams = fTCPStreams; streams != NULL;
        streams = streams->fNext) {
