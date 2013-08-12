@@ -188,7 +188,7 @@ void MultiFramedRTPSink::stopPlaying()
   *非常重要，客户端需要据此进行RTP包的重排序操作。RTP包内容存放在一个
   *OutPacketBuffer类型的fOutBuf成员变量中，OutPacketBuffer类的细节在文章的最后还会讨论。
   * 在RTP头中预留了一些空间没有进行实际的填充，这个工作将在doSpecialFrameHandling中
-  * 进行，后面会有讨论。进一步的工作，在packFrame函数中进行，它将为RTP包填充数据。
+  * 进行，后面会有讨论。进一步的工作，在memmovepackFrame函数中进行，它将为RTP包填充数据。
   */
 void MultiFramedRTPSink::buildAndSendPacket(Boolean isFirstPacket)
 {
@@ -198,7 +198,7 @@ void MultiFramedRTPSink::buildAndSendPacket(Boolean isFirstPacket)
     // Set up the RTP header:
     unsigned rtpHdr = 0x80000000; // RTP version 2; marker ('M') bit not set (by default; it can be set later)
     rtpHdr |= (fRTPPayloadType<<16);	/*负载类型*/
-    rtpHdr |= fSeqNo; /* sequence number/*序列号*/
+    rtpHdr |= fSeqNo; /* sequence number序列号*/
     fOutBuf->enqueueWord(rtpHdr);
 
     //保留一个4 bytes 空间，用于设置time stamp
@@ -238,37 +238,37 @@ void MultiFramedRTPSink::buildAndSendPacket(Boolean isFirstPacket)
 void MultiFramedRTPSink::packFrame()
 {
     // Get the next frame.
-	//首先需要检查buffer中是否还存在溢出的数据（frame）
+    //首先需要检查buffer中是否还存在溢出的数据（frame）
     // First, see if we have an overflow frame that was too big for the last pkt
-    if (fOutBuf->haveOverflowData())
+    if (fOutBuf->haveOverflowData())/*存在溢出的数据*/
     {
         // Use this frame before reading a new one from the source
         unsigned frameSize = fOutBuf->overflowDataSize();
         struct timeval presentationTime = fOutBuf->overflowPresentationTime();
         unsigned durationInMicroseconds = fOutBuf->overflowDurationInMicroseconds();
         //使用溢出的数据作为packet的内容，注意这里并不一定进行memcpy操作
-		//因为可能已经把packet的开始位置重置到overflow data 的位置
-		fOutBuf->useOverflowData();
-		
-		//获取了数据，就可以准备发送了，当然若是数据量太小，将需要获取更多的数据
+        //因为可能已经把packet的开始位置重置到overflow data 的位置
+        fOutBuf->useOverflowData();
+
+        //获取了数据，就可以准备发送了，当然若是数据量太小，将需要获取更多的数据
         afterGettingFrame1(frameSize, 0, presentationTime, durationInMicroseconds);
     }
-    else
+    else	/*不存在溢出的数据*/
     {
         // Normal case: we need to read a new frame from the source
         if (fSource == NULL) return;
-		
-		//这里，给予当前帧预留空间的机会，保存一些特殊信息，当然frameSpecificHeaderSize函数返回0
+
+        //这里，给予当前帧预留空间的机会，保存一些特殊信息，当然frameSpecificHeaderSize函数返回0
         fCurFrameSpecificHeaderPosition = fOutBuf->curPacketSize();
         fCurFrameSpecificHeaderSize = frameSpecificHeaderSize();
         fOutBuf->skipBytes(fCurFrameSpecificHeaderSize);
         fTotalFrameSpecificHeaderSizes += fCurFrameSpecificHeaderSize;
-		
-		/*
-		 *从source中获取数据，然后调用回调函数afterGettingFrame.注意，在C++中类成员函数是不能
-		 *作为回调函数的。我们可以看到afterGettingFrame中直接调用了afterGettingFrame1函数，与
-		 *上面的第一次情况处理类似了。不过这里为什么要回调函数回？
-		 */
+
+        /*
+         *从source中获取数据，然后调用回调函数afterGettingFrame.注意，在C++中类成员函数是不能
+         *作为回调函数的。我们可以看到afterGettingFrame中直接调用了afterGettingFrame1函数，与
+         *上面的第一次情况处理类似了。不过这里为什么要回调函数回？
+         */
         fSource->getNextFrame(fOutBuf->curPtr(), fOutBuf->totalBytesAvailable(),
                               afterGettingFrame, this, ourHandleClosure, this);
     }
@@ -291,7 +291,7 @@ void MultiFramedRTPSink
  *frame或者frame的一个分片，H264就是这样处理的。方法是将剩余数据记录为buffer的溢出部分。下次调用packFrame
  *函数时，直接从溢出部分赋值到packet中。不过应该注意，一个frame的大小不能超过buffer的大小(默认为60000)，
  *否则会真的溢出，那就要考虑增加buffer的大小了。
- * 
+ *
  * 在packet中允许出现多个frame的情况下(大多数情况下应该每必要用到)，采用了第归来实现，可以看到afterGettingFrame1
  * 函数的最后有调用packFrame的代码
  */
@@ -302,7 +302,7 @@ void MultiFramedRTPSink
 {
     if (fIsFirstPacket)
     {
-		//第一个packet，则记录下当前时间
+        //第一个packet，则记录下当前时间
         // Record the fact that we're starting to play now:
         gettimeofday(&fNextSendTime, NULL);
     }
@@ -312,10 +312,10 @@ void MultiFramedRTPSink
     {
         fInitialPresentationTime = presentationTime;
     }
-	
-	/*这里的处理要注意了，当一个Frame大于OutPacketBuffer::maxSize(默认为60000)时，
-	 *则会丢弃剩下的部分，numTruncatedBytes即为超出部分的大小。
-	 */
+
+    /*这里的处理要注意了，当一个Frame大于OutPacketBuffer::maxSize(默认为60000)时，
+     *则会丢弃剩下的部分，numTruncatedBytes即为超出部分的大小。
+     */
     if (numTruncatedBytes > 0)
     {
         unsigned const bufferSize = fOutBuf->totalBytesAvailable();
@@ -333,13 +333,15 @@ void MultiFramedRTPSink
     // check whether this new frame is eligible to be packed after them.
     // (This is independent of whether the packet has enough room for this
     // new frame; that check comes later.)
+
 	//fNumFramesUsedSoFar>0表示packet已经存在frame，需要检查是否允许在packet中加入新的frame
     if (fNumFramesUsedSoFar > 0)
     {
         if ((fPreviousFrameEndedFragmentation
-                && !allowOtherFramesAfterLastFragment())//不允许在前一个分片之后，跟随一个frame
+                && !allowOtherFramesAfterLastFragment())/*不允许在前一个分片之后，跟随一个frame*/
                 || !frameCanAppearAfterPacketStart(fOutBuf->curPtr(), frameSize))
-        {//	不允许添加新的frame，则保存为溢出数据，下次处理
+        {
+            //	不允许添加新的frame，则保存为溢出数据，下次处理
             // Save away this frame for next time:
             numFrameBytesToUse = 0;
             fOutBuf->setOverflowData(fOutBuf->curPacketSize(), frameSize,
@@ -353,11 +355,11 @@ void MultiFramedRTPSink
         // Check whether this frame overflows the packet
         if (fOutBuf->wouldOverflow(frameSize))
         {
-			/*
-			 * 若frame将导致packet溢出，应该将其保存到packet的溢出数据中，在下一个packet中发送
-			 * 如果frame本身大于packet的max size，就要对frame进行分片操作。不过需要调用allowFragmentationAfterStart
-			 * 函数以确定是否允许分片，例如对H264而言
-			 */
+            /*
+             * 若frame将导致packet溢出，应该将其保存到packet的溢出数据中，在下一个packet中发送
+             * 如果frame本身大于packet的max size，就要对frame进行分片操作。不过需要调用allowFragmentationAfterStart
+             * 函数以确定是否允许分片，例如对H264而言
+             */
             // Don't use this frame now; instead, save it as overflow data, and
             // send it in the next packet instead.  However, if the frame is too
             // big to fit in a packet by itself, then we need to fragment it (and
@@ -399,7 +401,7 @@ void MultiFramedRTPSink
         unsigned char* frameStart = fOutBuf->curPtr();
         fOutBuf->increment(numFrameBytesToUse);
         // do this now, in case "doSpecialFrameHandling()" calls "setFramePadding()" to append padding bytes
-		//还记得RTP头中预留的空间吗,将在这个函数中进行填充
+        //还记得RTP头中预留的空间吗,将在这个函数中进行填充
         // Here's where any payload format specific processing gets done:
         doSpecialFrameHandling(curFragmentationOffset, frameStart,
                                numFrameBytesToUse, presentationTime,
@@ -407,8 +409,8 @@ void MultiFramedRTPSink
 
         ++fNumFramesUsedSoFar;
 
-		//设置下一个packet的时间信息，这里若存在overflow数据，就不需要更新时间，因为这是
-		//同一个frame的不同分片，需要保证时间一致
+        //设置下一个packet的时间信息，这里若存在overflow数据，就不需要更新时间，因为这是
+        //同一个frame的不同分片，需要保证时间一致
         // Update the time at which the next packet should be sent, based
         // on the duration of the frame that we just packed into it.
         // However, if this frame has overflow data remaining, then don't
@@ -439,7 +441,7 @@ void MultiFramedRTPSink
         else
         {
             // There's room for more frames; try getting another:
-            packFrame();	//packet中还可以容纳frame，这里将形成递归调用
+            packFrame();	/*packet中还可以容纳frame，这里将形成递归调用*/
         }
     }
 }
@@ -459,18 +461,18 @@ void MultiFramedRTPSink::sendPacketIfNecessary()
 {
     if (fNumFramesUsedSoFar > 0)
     {
-		//packet中存在frame，则发送出去
-		// Send the packet:
-		//可以通过宏TEST_LOSS宏，模拟10%丢包
+        //packet中存在frame，则发送出去
+        // Send the packet:
+        //可以通过宏TEST_LOSS宏，模拟10%丢包
 #ifdef TEST_LOSS
         if ((our_random()%10) != 0) // simulate 10% packet loss #####
 #endif
-		//现在通过RTPInterface::sendPacket函数发送packet
-		if (!fRTPInterface.sendPacket(fOutBuf->packet(), fOutBuf->curPacketSize()))
-		{
-			// if failure handler has been specified, call it
-			if (fOnSendErrorFunc != NULL) (*fOnSendErrorFunc)(fOnSendErrorData);//错误处理
-		}
+            //现在通过RTPInterface::sendPacket函数发送packet
+            if (!fRTPInterface.sendPacket(fOutBuf->packet(), fOutBuf->curPacketSize()))
+            {
+                // if failure handler has been specified, call it
+                if (fOnSendErrorFunc != NULL) (*fOnSendErrorFunc)(fOnSendErrorData);//错误处理
+            }
         ++fPacketCount;
         fTotalOctetCount += fOutBuf->curPacketSize();
         fOctetCount += fOutBuf->curPacketSize()
@@ -482,10 +484,10 @@ void MultiFramedRTPSink::sendPacketIfNecessary()
     if (fOutBuf->haveOverflowData()
             && fOutBuf->totalBytesAvailable() > fOutBuf->totalBufferSize()/2)
     {
-		/*
-		 * 为了提高效率，可以直接重置buffer中的socket开始位置，这样就不需要拷贝一遍overflow数据了。
-		 * 在一个packet只能包含一个frame的情况下，是不是可以考虑修改这里的判断条件呢？
-		 */
+        /*
+         * 为了提高效率，可以直接重置buffer中的socket开始位置，这样就不需要拷贝一遍overflow数据了。
+         * 在一个packet只能包含一个frame的情况下，是不是可以考虑修改这里的判断条件呢？
+         */
         // Efficiency hack: Reset the packet start pointer to just in front of
         // the overflow data (allowing for the RTP header and special headers),
         // so that we probably don't have to "memmove()" the overflow data
@@ -497,14 +499,14 @@ void MultiFramedRTPSink::sendPacketIfNecessary()
     else
     {
         // Normal case: Reset the packet start pointer back to the start:
-        fOutBuf->resetPacketStart();//这种情况，若存在overflow data，就需要进行copy操作了
+        fOutBuf->resetPacketStart();/*这种情况，若存在overflow data，就需要进行copy操作了*/
     }
-    fOutBuf->resetOffset();	//packet已经发送了，可以重置buffer中的数据offset了
-    fNumFramesUsedSoFar = 0;//清零packet中的frame数
+    fOutBuf->resetOffset();	/*packet已经发送了，可以重置buffer中的数据offset了*/
+    fNumFramesUsedSoFar = 0;/*清零packet中的frame数*/
 
-	/*
-	 * 数据已经发送完毕(例如文件传输完毕)，就可以关闭了
-	 */
+    /*
+     * 数据已经发送完毕(例如文件传输完毕)，就可以关闭了
+     */
     if (fNoFramesLeft)
     {
         // We're done:
@@ -512,9 +514,9 @@ void MultiFramedRTPSink::sendPacketIfNecessary()
     }
     else
     {
-		/*
-		 * 准备下一次发送任务
-		 */
+        /*
+         * 准备下一次发送任务
+         */
         // We have more frames left to send.  Figure out when the next frame
         // is due to start playing, then make sure that we wait this long before
         // sending the next packet.
@@ -526,8 +528,8 @@ void MultiFramedRTPSink::sendPacketIfNecessary()
         {
             uSecondsToGo = 0;
         }
-		
-		//作演示时间，处理函数，将入到任务调度器中，以便进行下一次发送操作
+
+        //作演示时间，处理函数，将入到任务调度器中，以便进行下一次发送操作
         // Delay this amount of time:
         nextTask() = envir().taskScheduler().scheduleDelayedTask(uSecondsToGo, (TaskFunc*)sendNext, this);
     }

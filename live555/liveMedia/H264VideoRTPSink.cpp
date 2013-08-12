@@ -251,6 +251,7 @@ void H264FUAFragmenter::doGetNextFrame()
 {
     if (fNumValidDataBytes == 1)
     {
+        //读取一个新的frame
         // We have no NAL unit data currently in the buffer.  Read a new one:
         fInputSource->getNextFrame(&fInputBuffer[1], fInputBufferSize - 1,
                                    afterGettingFrame, this,
@@ -258,6 +259,12 @@ void H264FUAFragmenter::doGetNextFrame()
     }
     else
     {
+        //现在buffer中已经存在NALU数据了，需要考虑三种情况
+        //1. 一个新的NALU，且足够小能投递给RTP sink.
+        //2. 一个新的NALU,但是比RTP sink 要求的包大了，投递第一个分片作为一个FU-A packet,
+        //    并带上一个额外的头子节
+        //3. 部分NALU数据，投递下一个分片作为一个FU-A socket,并带上2个额外的字节
+
         // We have NAL unit data in the buffer.  There are three cases to consider:
         // 1. There is a new NAL unit in the buffer, and it's small enough to deliver
         //    to the RTP sink (as is).
@@ -283,12 +290,15 @@ void H264FUAFragmenter::doGetNextFrame()
         {
             if (fNumValidDataBytes - 1 <= fMaxSize)   // case 1
             {
+                //情况1，处理整个NALU
                 memmove(fTo, &fInputBuffer[1], fNumValidDataBytes - 1);
                 fFrameSize = fNumValidDataBytes - 1;
                 fCurDataOffset = fNumValidDataBytes;
             }
             else     // case 2
             {
+                //情况2， 处理NALU的第一个分片。注意，我们添加FU指示符和FU头子节(with S bit)到包的最前面
+                //重用已经存在的NAL,头子节作为FU 的头子节
                 // We need to send the NAL unit data as FU-A packets.  Deliver the first
                 // packet now.  Note that we add FU indicator and FU header bytes to the front
                 // of the packet (reusing the existing NAL header byte for the FU header).
@@ -302,6 +312,8 @@ void H264FUAFragmenter::doGetNextFrame()
         }
         else     // case 3
         {
+            //情况3，处理非第1个分片。需要添加FU指示和FU头(我们重用了第1 个
+            //分片中的字节，但是需要清楚5位， 并在处理最后一个分片中添加E 位)
             // We are sending this NAL unit data as FU-A packets.  We've already sent the
             // first packet (fragment).  Now, send the next fragment.  Note that we add
             // FU indicator and FU header bytes to the front.  (We reuse these bytes that
@@ -318,6 +330,7 @@ void H264FUAFragmenter::doGetNextFrame()
             }
             else
             {
+                //最后一个分片，需要在FU 头中设置E 标志位
                 // This is the last fragment:
                 fInputBuffer[fCurDataOffset-1] |= 0x40; // set the E bit in the FU header
                 fNumTruncatedBytes = fSaveNumTruncatedBytes;
