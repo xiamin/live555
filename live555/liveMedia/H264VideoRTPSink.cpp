@@ -249,7 +249,11 @@ H264FUAFragmenter::~H264FUAFragmenter()
 
 void H264FUAFragmenter::doGetNextFrame()
 {
-    if (fNumValidDataBytes == 1)
+	/*
+	 *	H264FUAFragmenter::doGetNextFrame函数第一次执行时，执行条件1，需要调用
+	 *	MPEGVideoStreamFrame::doGetNextFrame读取一个新的frame。
+	 */
+    if (fNumValidDataBytes == 1)/*初始化为1， 在afterGettingFrame1 中增加*/
     {
         //读取一个新的frame
         // We have no NAL unit data currently in the buffer.  Read a new one:
@@ -361,6 +365,15 @@ void H264FUAFragmenter::afterGettingFrame(void* clientData, unsigned frameSize,
                                    durationInMicroseconds);
 }
 
+/*
+ *	下面的代码首先记录几个数据到成员变量中，fNumValidDataBytes很重要，表示读取到的frame长度+1.
+ *	然后又一次调用了H264FUAFragmenter::doGetNextFrame(),这里将进入H264FUAFragmenter::doGetNextFrame
+ *	函数中的第二个条件分支，这种循环调用很容易把人迷糊了。
+ *	H264FUAFragmenter::doGetNextFrame函数中第二个条件分支中，处理H264的RTP分片问题，这里按照RFC3984
+ *	进行RTP封装的。你应该注意到，在上篇文章“RTP的打包与发送”中，也出现了分片的代码(MultiFramedRTPSink
+ *	::packFrame函数中)，那里直接按MTU的长度来拆分。那为什么H264还要自定义一套RTP打包的标准呢？暂时也
+ *	不是很清楚
+ */
 void H264FUAFragmenter::afterGettingFrame1(unsigned frameSize,
         unsigned numTruncatedBytes,
         struct timeval presentationTime,

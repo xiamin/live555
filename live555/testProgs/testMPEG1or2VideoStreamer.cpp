@@ -52,123 +52,128 @@ RTPSink* videoSink;
 
 void play(); // forward
 
-int main(int argc, char** argv) {
-  // Begin by setting up our usage environment:
-  TaskScheduler* scheduler = BasicTaskScheduler::createNew();
-  env = BasicUsageEnvironment::createNew(*scheduler);
+int main(int argc, char** argv)
+{
+    // Begin by setting up our usage environment:
+    TaskScheduler* scheduler = BasicTaskScheduler::createNew();
+    env = BasicUsageEnvironment::createNew(*scheduler);
 
-  // Create 'groupsocks' for RTP and RTCP:
-  char const* destinationAddressStr
+    // Create 'groupsocks' for RTP and RTCP:
+    char const* destinationAddressStr
 #ifdef USE_SSM
-    = "232.255.42.42";
+        = "232.255.42.42";
 #else
-    = "239.255.42.42";
-  // Note: This is a multicast address.  If you wish to stream using
-  // unicast instead, then replace this string with the unicast address
-  // of the (single) destination.  (You may also need to make a similar
-  // change to the receiver program.)
+        = "239.255.42.42";
+    // Note: This is a multicast address.  If you wish to stream using
+    // unicast instead, then replace this string with the unicast address
+    // of the (single) destination.  (You may also need to make a similar
+    // change to the receiver program.)
 #endif
-  const unsigned short rtpPortNum = 8888;
-  const unsigned short rtcpPortNum = rtpPortNum+1;
-  const unsigned char ttl = 7; // low, in case routers don't admin scope
+    const unsigned short rtpPortNum = 8888;
+    const unsigned short rtcpPortNum = rtpPortNum+1;
+    const unsigned char ttl = 7; // low, in case routers don't admin scope
 
-  struct in_addr destinationAddress;
-  destinationAddress.s_addr = our_inet_addr(destinationAddressStr);
-  const Port rtpPort(rtpPortNum);
-  const Port rtcpPort(rtcpPortNum);
+    struct in_addr destinationAddress;
+    destinationAddress.s_addr = our_inet_addr(destinationAddressStr);
+    const Port rtpPort(rtpPortNum);
+    const Port rtcpPort(rtcpPortNum);
 
-  Groupsock rtpGroupsock(*env, destinationAddress, rtpPort, ttl);
-  Groupsock rtcpGroupsock(*env, destinationAddress, rtcpPort, ttl);
+    Groupsock rtpGroupsock(*env, destinationAddress, rtpPort, ttl);
+    Groupsock rtcpGroupsock(*env, destinationAddress, rtcpPort, ttl);
 #ifdef USE_SSM
-  rtpGroupsock.multicastSendOnly();
-  rtcpGroupsock.multicastSendOnly();
+    rtpGroupsock.multicastSendOnly();
+    rtcpGroupsock.multicastSendOnly();
 #endif
 
-  // Create a 'MPEG Video RTP' sink from the RTP 'groupsock':
-  videoSink = MPEG1or2VideoRTPSink::createNew(*env, &rtpGroupsock);
+    // Create a 'MPEG Video RTP' sink from the RTP 'groupsock':
+    videoSink = MPEG1or2VideoRTPSink::createNew(*env, &rtpGroupsock);
 
-  // Create (and start) a 'RTCP instance' for this RTP sink:
-  const unsigned estimatedSessionBandwidth = 4500; // in kbps; for RTCP b/w share
-  const unsigned maxCNAMElen = 100;
-  unsigned char CNAME[maxCNAMElen+1];
-  gethostname((char*)CNAME, maxCNAMElen);
-  CNAME[maxCNAMElen] = '\0'; // just in case
+    // Create (and start) a 'RTCP instance' for this RTP sink:
+    const unsigned estimatedSessionBandwidth = 4500; // in kbps; for RTCP b/w share
+    const unsigned maxCNAMElen = 100;
+    unsigned char CNAME[maxCNAMElen+1];
+    gethostname((char*)CNAME, maxCNAMElen);
+    CNAME[maxCNAMElen] = '\0'; // just in case
 #ifdef IMPLEMENT_RTSP_SERVER
-  RTCPInstance* rtcp =
+    RTCPInstance* rtcp =
 #endif
-    RTCPInstance::createNew(*env, &rtcpGroupsock,
-			      estimatedSessionBandwidth, CNAME,
-			      videoSink, NULL /* we're a server */, isSSM);
-  // Note: This starts RTCP running automatically
+        RTCPInstance::createNew(*env, &rtcpGroupsock,
+                                estimatedSessionBandwidth, CNAME,
+                                videoSink, NULL /* we're a server */, isSSM);
+    // Note: This starts RTCP running automatically
 
 #ifdef IMPLEMENT_RTSP_SERVER
-  RTSPServer* rtspServer = RTSPServer::createNew(*env);
-  // Note that this (attempts to) start a server on the default RTSP server
-  // port: 554.  To use a different port number, add it as an extra
-  // (optional) parameter to the "RTSPServer::createNew()" call above.
-  if (rtspServer == NULL) {
-    *env << "Failed to create RTSP server: " << env->getResultMsg() << "\n";
-    exit(1);
-  }
-  ServerMediaSession* sms
-    = ServerMediaSession::createNew(*env, "testStream", inputFileName,
-		   "Session streamed by \"testMPEG1or2VideoStreamer\"",
-					   isSSM);
-  sms->addSubsession(PassiveServerMediaSubsession::createNew(*videoSink, rtcp));
-  rtspServer->addServerMediaSession(sms);
+    RTSPServer* rtspServer = RTSPServer::createNew(*env);
+    // Note that this (attempts to) start a server on the default RTSP server
+    // port: 554.  To use a different port number, add it as an extra
+    // (optional) parameter to the "RTSPServer::createNew()" call above.
+    if (rtspServer == NULL)
+    {
+        *env << "Failed to create RTSP server: " << env->getResultMsg() << "\n";
+        exit(1);
+    }
+    ServerMediaSession* sms
+        = ServerMediaSession::createNew(*env, "testStream", inputFileName,
+                                        "Session streamed by \"testMPEG1or2VideoStreamer\"",
+                                        isSSM);
+    sms->addSubsession(PassiveServerMediaSubsession::createNew(*videoSink, rtcp));
+    rtspServer->addServerMediaSession(sms);
 
-  char* url = rtspServer->rtspURL(sms);
-  *env << "Play this stream using the URL \"" << url << "\"\n";
-  delete[] url;
+    char* url = rtspServer->rtspURL(sms);
+    *env << "Play this stream using the URL \"" << url << "\"\n";
+    delete[] url;
 #endif
 
-  // Finally, start the streaming:
-  *env << "Beginning streaming...\n";
-  play();
+    // Finally, start the streaming:
+    *env << "Beginning streaming...\n";
+    play();
 
-  env->taskScheduler().doEventLoop(); // does not return
+    env->taskScheduler().doEventLoop(); // does not return
 
-  return 0; // only to prevent compiler warning
+    return 0; // only to prevent compiler warning
 }
 
-void afterPlaying(void* /*clientData*/) {
-  *env << "...done reading from file\n";
+void afterPlaying(void* /*clientData*/)
+{
+    *env << "...done reading from file\n";
 
-  videoSink->stopPlaying();
-  Medium::close(videoSource);
+    videoSink->stopPlaying();
+    Medium::close(videoSource);
 #ifdef SOURCE_IS_PROGRAM_STREAM
-  Medium::close(mpegDemux);
+    Medium::close(mpegDemux);
 #endif
-  // Note that this also closes the input file that this source read from.
+    // Note that this also closes the input file that this source read from.
 
-  play();
+    play();
 }
 
-void play() {
-  // Open the input file as a 'byte-stream file source':
-  ByteStreamFileSource* fileSource
-    = ByteStreamFileSource::createNew(*env, inputFileName);
-  if (fileSource == NULL) {
-    *env << "Unable to open file \"" << inputFileName
-	 << "\" as a byte-stream file source\n";
-    exit(1);
-  }
+void play()
+{
+    // Open the input file as a 'byte-stream file source':
+    ByteStreamFileSource* fileSource
+        = ByteStreamFileSource::createNew(*env, inputFileName);
+    if (fileSource == NULL)
+    {
+        *env << "Unable to open file \"" << inputFileName
+             << "\" as a byte-stream file source\n";
+        exit(1);
+    }
 
-  FramedSource* videoES;
+    FramedSource* videoES;
 #ifdef SOURCE_IS_PROGRAM_STREAM
-  // We must demultiplex a Video Elementary Stream from the input source:
-  mpegDemux = MPEG1or2Demux::createNew(*env, fileSource);
-  videoES = mpegDemux->newVideoStream();
+    // We must demultiplex a Video Elementary Stream from the input source:
+    mpegDemux = MPEG1or2Demux::createNew(*env, fileSource);
+    videoES = mpegDemux->newVideoStream();
 #else
-  // The input source is assumed to already be a Video Elementary Stream:
-  videoES = fileSource;
+    // The input source is assumed to already be a Video Elementary Stream:
+    videoES = fileSource;
 #endif
 
-  // Create a framer for the Video Elementary Stream:
-  videoSource
-    = MPEG1or2VideoStreamFramer::createNew(*env, videoES, iFramesOnly);
+    // Create a framer for the Video Elementary Stream:
+    videoSource
+        = MPEG1or2VideoStreamFramer::createNew(*env, videoES, iFramesOnly);
 
-  // Finally, start playing:
-  *env << "Beginning to read from file...\n";
-  videoSink->startPlaying(*videoSource, afterPlaying, videoSink);
+    // Finally, start playing:
+    *env << "Beginning to read from file...\n";
+    videoSink->startPlaying(*videoSource, afterPlaying, videoSink);
 }
