@@ -497,7 +497,7 @@ void RTSPServer::incomingConnectionHandler(int serverSocket)
     /*
      * 设置socket的参数
      */
-    makeSocketNonBlocking(clientSocket);
+    makeSocketNonBlocking(clientSocket);/*fcntlz(clientSocket...);*/
     increaseSendBufferTo(envir(), clientSocket, 50 * 1024);
 
 #ifdef DEBUG
@@ -547,6 +547,7 @@ RTSPServer::RTSPClientConnection::RTSPClientConnection(RTSPServer& ourServer,
     fRecursionCount(0), fOurSessionCookie(NULL)
 {
     // Add ourself to our 'client connections' table:
+    /*加入到client connections 的哈希表中*/
     fOurServer.fClientConnections->Add((char const*) this, this);
 
     // Arrange to handle incoming requests:

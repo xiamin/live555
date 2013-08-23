@@ -675,7 +675,7 @@ unsigned H264VideoStreamParser::parse()
 #endif
             while (remainingDataSize > 0)
             {
-                u_int8_t nextByte = get1Byte();	//将第一个字节保存下来，其指示了NALU的类型
+                u_int8_t nextByte = get1Byte();	/*将第一个字节保存下来，其指示了NALU的类型*/
                 if (!fHaveSeenFirstByteOfNALUnit)
                 {
                     fFirstByteOfNALUnit = nextByte;
@@ -700,7 +700,7 @@ unsigned H264VideoStreamParser::parse()
             u_int32_t next4Bytes = test4Bytes();
             if (!fHaveSeenFirstByteOfNALUnit)
             {
-                fFirstByteOfNALUnit = next4Bytes>>24;	//将第一个字节保存下来
+                fFirstByteOfNALUnit = next4Bytes>>24;	/*将第一个字节保存下来*/
                 fHaveSeenFirstByteOfNALUnit = True;
             }
 			//将下一个起始符号之前的数据保存下来
@@ -751,7 +751,7 @@ unsigned H264VideoStreamParser::parse()
             // Later, perhaps adjust "fPresentationTime" if we saw a "pic_timing" SEI payload??? #####
             break;
         }
-        case 7:   // Sequence parameter set (序列参数集)
+        case 7:   /* Sequence parameter set (序列参数集)*/
         {
 			//保存一份SPS的副本到H264VideoStreamFramer中，后面的pps也需要保存，sps中可能还包含了帧率信息
             // First, save a copy of this NAL unit, in case the downstream object wants to see it:
@@ -772,14 +772,14 @@ unsigned H264VideoStreamParser::parse()
 #endif
             }
             else
-            {	//sps中不包含帧率信息，则使用source中设置的默认帧率
+            {	/*sps中不包含帧率信息，则使用source中设置的默认帧率*/
 #ifdef DEBUG
                 fprintf(stderr, "\tThis \"Sequence Parameter Set\" NAL unit contained no frame rate information, so we use a default frame rate of %f fps\n", usingSource()->fFrameRate);
 #endif
             }
             break;
         }
-        case 8:   // Picture parameter set (图像参数集PPS)
+        case 8:   /* Picture parameter set (图像参数集PPS)*/
         {
             // Save a copy of this NAL unit, in case the downstream object wants to see it:
             usingSource()->saveCopyOfPPS(fStartOfFrame + fOutputStartCodeSize, fTo - fStartOfFrame - fOutputStartCodeSize);
@@ -922,7 +922,7 @@ unsigned H264VideoStreamParser::parse()
 #ifdef DEBUG
             fprintf(stderr, "*****This NAL unit ends the current access unit*****\n");
 #endif
-            usingSource()->fPictureEndMarker = True;	//这里就是设置RTP打包时用到的M标志了
+            usingSource()->fPictureEndMarker = True;	/*这里就是设置RTP打包时用到的M标志了*/
             ++usingSource()->fPictureCount;
 
 			//下一个NALU不在属于当前"access unit"时，才改变时间
